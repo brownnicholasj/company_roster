@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
+const { restoreDefaultPrompts } = require('inquirer');
 
 // connection information for the sql database
 const conn = mysql.createConnection({
@@ -63,12 +64,20 @@ const viewAllEmployees = () => {
 };
 
 const viewSelectEmployees = () => {
-	inquirer.prompt({
-		name: 'selectChoice',
-		type: 'list',
-		message: 'What criteria would you like to filter on?',
-		choices: ['Department', 'Role', 'Employee', 'EXIT'],
-	});
+	inquirer.prompt(
+		{
+			name: 'selectChoice',
+			type: 'list',
+			message: 'What criteria would you like to filter on?',
+			choices: ['Department', 'Role', 'Employee', 'EXIT'],
+		},
+		{
+			name: 'deptSelect',
+			type: 'list',
+			message: 'Which department would you like to view?',
+			choices: getDept(),
+		}
+	);
 	// conn.query(
 	// 	'SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id',
 	// 	(err, res) => {
@@ -79,8 +88,33 @@ const viewSelectEmployees = () => {
 	// );
 };
 
+var dept = [];
+var getInformationFromDB = function () {
+	conn.query(
+		'SELECT department.name FROM department',
+		function (err, res, fields) {
+			if (err) throw err;
+			console.log(`response is ${res.length}`);
+			if (res.length) {
+				for (let i = 0; i < res.length; i++) {
+					console.log(res[i].name);
+					dept.push(res[i].name);
+				}
+			}
+			return console.log(dept);
+		}
+	);
+};
+
 // connect to the mysql server and sql database
+// conn.connect((err) => {
+// 	if (err) throw err;
+// 	init();
+// });
+
 conn.connect((err) => {
 	if (err) throw err;
-	init();
+	console.log(getInformationFromDB());
+	console.log(dept);
+	// conn.end();
 });
