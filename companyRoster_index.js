@@ -31,11 +31,14 @@ const init = () => {
 			// based on their answer, either call the bid or the post functions
 			console.log(answer);
 			switch (answer.firstChoice) {
-				case 'ADD':
-					console.log(`selected ADD with answer = ${answer.firstChoice}`);
-					return;
 				case 'View All Employees':
 					viewAllEmployees();
+					return;
+				case 'View All Employees':
+					viewSelectEmployees();
+					return;
+				case 'ADD':
+					console.log(`selected ADD with answer = ${answer.firstChoice}`);
 					return;
 				case 'UPDATE':
 					console.log(`selected UpDATE with answer = ${answer.firstChoice}`);
@@ -47,6 +50,7 @@ const init = () => {
 		});
 };
 
+//query pulls all employee information from all tables, returns to firstChoice question
 const viewAllEmployees = () => {
 	conn.query(
 		'SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id',
@@ -56,6 +60,23 @@ const viewAllEmployees = () => {
 			init();
 		}
 	);
+};
+
+const viewSelectEmployees = () => {
+	inquirer.prompt({
+		name: 'selectChoice',
+		type: 'list',
+		message: 'What criteria would you like to filter on?',
+		choices: ['Department', 'Role', 'Employee', 'EXIT'],
+	});
+	// conn.query(
+	// 	'SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id',
+	// 	(err, res) => {
+	// 		if (err) throw err;
+	// 		console.table(res);
+	// 		init();
+	// 	}
+	// );
 };
 
 // connect to the mysql server and sql database
