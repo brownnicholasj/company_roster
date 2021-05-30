@@ -2,6 +2,8 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const { restoreDefaultPrompts } = require('inquirer');
 const deptHelper = require('./lib/deptHelper');
+const roleHelper = require('./lib/roleHelper');
+const employeeHelper = require('./lib/employeeHelper');
 
 // connection information for the sql database
 const conn = mysql.createConnection({
@@ -17,9 +19,10 @@ const conn = mysql.createConnection({
 
 var deptList = [];
 var roleList = [];
+var employeeFirst = [];
+var employeeLast = [];
 
 const init = () => {
-	deptList = new deptHelper();
 	inquirer
 		.prompt({
 			name: 'firstChoice',
@@ -35,6 +38,7 @@ const init = () => {
 		})
 		.then((answer) => {
 			// console.log(dept);
+			updateLists();
 			switch (answer.firstChoice) {
 				case 'View All Employees':
 					viewAllEmployees();
@@ -91,17 +95,42 @@ const viewSelectEmployees = () => {
 				choices: roleList,
 				when: (answers) => answers.selectChoice === 'Role',
 			},
+			{
+				name: 'employeeSelect',
+				type: 'list',
+				message: 'Search by first name or last name?',
+				choices: ['first_name', 'last_name'],
+				when: (answers) => answers.selectChoice === 'Employee',
+			},
+			{
+				name: 'nameSelect',
+				type: 'input',
+				message: (answers) =>
+					`Input the ${answers.employeeSelect} of the employee you want to find`,
+				when: (answers) => answers.selectChoice === 'Employee',
+			},
 		])
 		.then((answer) => {
-			console.log(`selectionchoice is ====> ${answer.selectChoice}`);
 			switch (answer.selectChoice) {
 				case 'Department':
 					return deptQuery(answer.deptSelect);
-				default:
-					return conn.end();
+				case 'Role':
+					return roleQuery(answer.roleSelect);
+				case 'Employee':
+					return employeeQuery(answer.employeeSelect, answer.nameSelect);
+				case 'EXIT':
+					conn.end();
 			}
 		});
 };
+
+function updateLists(column, name) {
+	deptList = new deptHelper();
+	roleList = new roleHelper();
+	const nameSearch = new employeeHelper();
+	employeeFirst = nameSearch.getFirstName();
+	employeeLast = nameSearch.getLastName();
+}
 
 function deptQuery(filter) {
 	conn.query(
@@ -114,9 +143,36 @@ function deptQuery(filter) {
 	);
 }
 
+function roleQuery(filter) {
+	conn.query(
+		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id WHERE role.title='${filter}'`,
+		(err, res) => {
+			if (err) throw err;
+			console.table(res);
+			init();
+		}
+	);
+}
+
+function employeeQuery(col, select) {
+	if (!employeeFirst.includes(select) && !employeeLast.includes(select)) {
+		console.log(`${select} is not on the company roster`);
+		init();
+	} else {
+		conn.query(
+			`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id WHERE ${col}='${select}'`,
+			(err, res) => {
+				if (err) throw err;
+				console.table(res);
+				init();
+			}
+		);
+	}
+}
+
 function endConnection() {
 	console.log(`closing connection, goodbye`);
-	conn.end();
+	conn.end;
 }
 
 // connect to the mysql server and sql database
