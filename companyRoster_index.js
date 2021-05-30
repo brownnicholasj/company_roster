@@ -155,8 +155,13 @@ function roleQuery(filter) {
 }
 
 function employeeQuery(col, select) {
-	if (!employeeFirst.includes(select) && !employeeLast.includes(select)) {
-		console.log(`${select} is not on the company roster`);
+	let selectFormatted = formatInput(select);
+
+	if (
+		!employeeFirst.includes(selectFormatted) &&
+		!employeeLast.includes(selectFormatted)
+	) {
+		console.log(`${selectFormatted} is not on the company roster`);
 		init();
 	} else {
 		conn.query(
@@ -168,6 +173,13 @@ function employeeQuery(col, select) {
 			}
 		);
 	}
+}
+
+//function to format the input to first letter capitalized lowercase to the rest of the string, plan to use at multiple points
+function formatInput(string) {
+	let stringLower = string.toLowerCase();
+	let stringFormatted = stringLower[0].toUpperCase() + stringLower.substring(1);
+	return stringFormatted;
 }
 
 function endConnection() {
