@@ -32,7 +32,7 @@ const init = () => {
 			choices: [
 				'View All Employees',
 				'View Select Employees',
-				'ADD',
+				'Add New Department, Role, or Employee',
 				'UPDATE',
 				'EXIT',
 			],
@@ -47,8 +47,8 @@ const init = () => {
 				case 'View Select Employees':
 					viewSelectEmployees();
 					return;
-				case 'ADD':
-					console.log(`selected ADD with answer = ${answer.firstChoice}`);
+				case 'Add New Department, Role, or Employee':
+					addEntry();
 					return;
 				case 'UPDATE':
 					console.log(`selected UpDATE with answer = ${answer.firstChoice}`);
@@ -121,6 +121,79 @@ const viewSelectEmployees = () => {
 				case 'EXIT':
 					conn.end();
 			}
+		});
+};
+
+const addEntry = () => {
+	inquirer
+		.prompt([
+			{
+				name: 'addChoice',
+				type: 'list',
+				message: 'What would you like to add?',
+				choices: ['Department', 'Role', 'Employee', 'EXIT'],
+			},
+			{
+				name: 'deptAdd',
+				type: 'input',
+				message: 'What is the name of the Department?',
+				when: (answers) => answers.addChoice === 'Department',
+			},
+			{
+				name: 'roleAdd',
+				type: 'input',
+				message: 'What is the Title of the role you would like to add?',
+				when: (answers) => answers.addChoice === 'Role',
+			},
+			{
+				name: 'roleSalary',
+				type: 'input',
+				message: 'What is the salary of the role? (format: ######.##)',
+				when: (answers) => answers.addChoice === 'Role',
+				validate(value) {
+					if (isNaN(value) === false) {
+						return true;
+					}
+					return false;
+				},
+			},
+			{
+				name: 'roleDept',
+				type: 'list',
+				message: 'What department does this role belong to?',
+				choices: deptList,
+				when: (answers) => answers.addChoice === 'Role',
+			},
+			{
+				name: 'employeeAddFirst',
+				type: 'input',
+				message: 'What is the employees first name?',
+				when: (answers) => answers.addChoice === 'Employee',
+			},
+			{
+				name: 'employeeAddLast',
+				type: 'input',
+				message: 'What is the employees last name?',
+				when: (answers) => answers.addChoice === 'Employee',
+			},
+			{
+				name: 'employeeRole',
+				type: 'list',
+				message: 'What is the employees Role?',
+				choices: roleList,
+				when: (answers) => answers.addChoice === 'Employee',
+			},
+			{
+				name: 'employeeMgr',
+				type: 'list',
+				message: 'Who is the employees Manager?',
+				choices: ['none', 'someone'],
+				when: (answers) => answers.addChoice === 'Employee',
+			},
+		])
+		.then((answer) => {
+			console.log(answer);
+			init();
 		});
 };
 
