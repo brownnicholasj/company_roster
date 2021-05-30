@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const { restoreDefaultPrompts } = require('inquirer');
+const chalk = require('chalk');
 const deptHelper = require('./lib/deptHelper');
 const roleHelper = require('./lib/roleHelper');
 const employeeHelper = require('./lib/employeeHelper');
@@ -238,7 +239,9 @@ function employeeQuery(col, select) {
 		!employeeFirst.includes(selectFormatted) &&
 		!employeeLast.includes(selectFormatted)
 	) {
-		console.log(`${selectFormatted} is not on the company roster`);
+		console.log(
+			chalk.white.bgBlue(`${selectFormatted} is not on the company roster`)
+		);
 		init();
 	} else {
 		conn.query(
@@ -260,7 +263,7 @@ function formatInput(string) {
 }
 
 function endConnection() {
-	console.log(`closing connection, goodbye`);
+	console.log(chalk.white.bgRed.bold(`closing connection, goodbye`));
 	conn.end;
 }
 
