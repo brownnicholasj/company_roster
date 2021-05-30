@@ -17,6 +17,7 @@ const conn = mysql.createConnection({
 	database: 'company_roster',
 });
 
+//store variables used when evaluating what is able to be selected and queried
 var deptList = [];
 var roleList = [];
 var employeeFirst = [];
@@ -37,7 +38,7 @@ const init = () => {
 			],
 		})
 		.then((answer) => {
-			// console.log(dept);
+			// run updateList function to populate those lists when needed
 			updateLists();
 			switch (answer.firstChoice) {
 				case 'View All Employees':
@@ -53,7 +54,6 @@ const init = () => {
 					console.log(`selected UpDATE with answer = ${answer.firstChoice}`);
 					return;
 				default:
-					// console.log(`Logging off, goodbye`);
 					endConnection();
 					return;
 			}
@@ -124,6 +124,7 @@ const viewSelectEmployees = () => {
 		});
 };
 
+//function to update Lists of roles and departments used in inquire questions
 function updateLists(column, name) {
 	deptList = new deptHelper();
 	roleList = new roleHelper();
@@ -132,6 +133,7 @@ function updateLists(column, name) {
 	employeeLast = nameSearch.getLastName();
 }
 
+//function to handle dept query requests
 function deptQuery(filter) {
 	conn.query(
 		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id WHERE department.name='${filter}'`,
@@ -143,6 +145,7 @@ function deptQuery(filter) {
 	);
 }
 
+//function to handle role query requests
 function roleQuery(filter) {
 	conn.query(
 		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id WHERE role.title='${filter}'`,
@@ -154,6 +157,7 @@ function roleQuery(filter) {
 	);
 }
 
+//function to handle employee specific requests
 function employeeQuery(col, select) {
 	let selectFormatted = formatInput(select);
 
