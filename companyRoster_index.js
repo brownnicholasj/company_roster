@@ -23,7 +23,7 @@ var deptList = [];
 var roleList = [];
 var employeeFirst = [];
 var employeeLast = [];
-var getDeptId_Role = [];
+var mgrList = [];
 
 const init = () => {
 	inquirer
@@ -189,7 +189,7 @@ const addEntry = () => {
 				name: 'employeeMgr',
 				type: 'list',
 				message: 'Who is the employees Manager?',
-				choices: ['none', 'someone'],
+				choices: mgrList,
 				when: (answers) => answers.addChoice === 'Employee',
 			},
 		])
@@ -235,11 +235,12 @@ function addTables(answer) {
 		let roleInput = answer.roleAdd;
 		let roleSalary = answer.roleSalary;
 		let roleDept = answer.roleDept;
+		let getDeptId = '';
 
 		conn.query(
 			`SELECT department.id FROM department WHERE name='${roleDept}'`,
 			(err, res) => {
-				getDeptId_Role = res[0].id;
+				getDeptId = res[0].id;
 			}
 		);
 
@@ -258,7 +259,7 @@ function addTables(answer) {
 				.then((answers) => {
 					answers.confirmRole
 						? conn.query(
-								`INSERT INTO role (title,salary,department_id) VALUES ('${roleInput}', '${roleSalary}','${getDeptId_Role}')`,
+								`INSERT INTO role (title,salary,department_id) VALUES ('${roleInput}', '${roleSalary}','${getDeptId}')`,
 								(err, res) => {
 									console.log(
 										chalk.red.bgGreen(`${roleInput} was added to the table`)
@@ -268,6 +269,60 @@ function addTables(answer) {
 						: addEntry();
 				});
 		}
+	} else if (answer.addChoice === 'Employee') {
+		let first_name = answer.employeeAddFirst;
+		let last_name = answer.employeeAddLast;
+		let employee_role = answer.employeeRole;
+		let employee_mgr = '';
+		if (answer.employeeMgr === 'none') {
+			employee_mgr = '';
+		} else {
+			employee_mgr = answer.employeeMgr.split('-');
+		}
+		let mgr_name = employee_mgr[1];
+		let getRoleId = '';
+		let getMgrId = employee_mgr[0];
+
+		conn.query(
+			`SELECT role.role_id FROM role WHERE title='${employee_role}'`,
+			(err, res) => {
+				getRoleId = res[0].role_id;
+			}
+		);
+
+		inquirer
+			.prompt([
+				{
+					name: 'confirmEmployee',
+					type: 'confirm',
+					message: `Are you sure you want to add ${first_name} ${last_name} as a ${employee_role}, reporting to ${mgr_name}?`,
+				},
+			])
+			.then((answers) => {
+				!answers.confirmEmployee
+					? addEntry()
+					: getMgrId
+					? conn.query(
+							`INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES ('${first_name}', '${last_name}','${getRoleId}','${getMgrId}')`,
+							(err, res) => {
+								console.log(
+									chalk.red.bgGreen(
+										`${first_name} ${last_name} was added to the table`
+									)
+								);
+							}
+					  )
+					: conn.query(
+							`INSERT INTO employee (first_name,last_name,role_id) VALUES ('${first_name}', '${last_name}','${getRoleId}')`,
+							(err, res) => {
+								console.log(
+									chalk.red.bgGreen(
+										`${first_name} ${last_name} was added to the table`
+									)
+								);
+							}
+					  );
+			});
 	}
 }
 
@@ -278,6 +333,7 @@ function updateLists(column, name) {
 	const nameSearch = new employeeHelper();
 	employeeFirst = nameSearch.getFirstName();
 	employeeLast = nameSearch.getLastName();
+	mgrList = nameSearch.getManagers();
 }
 
 //function to handle dept query requests

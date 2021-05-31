@@ -4,18 +4,18 @@ CREATE DATABASE company_roster;
 USE company_roster;
 
 CREATE TABLE department(
-    id INT AUTO_INCREMENT,
+    department_id INT AUTO_INCREMENT,
     name VARCHAR(30),
-    PRIMARY KEY (id)
+    PRIMARY KEY (department_id)
 );
 
 CREATE TABLE role(
-    id INT AUTO_INCREMENT,
+    role_id INT AUTO_INCREMENT,
     title VARCHAR(30),
     salary DECIMAL(10,2),
     department_id INT,
-    PRIMARY KEY (id),
-    FOREIGN KEY (department_id) REFERENCES department(id)
+    PRIMARY KEY (role_id),
+    FOREIGN KEY (department_id) REFERENCES department(department_id)
  );
 
 CREATE TABLE employee(
@@ -25,6 +25,6 @@ CREATE TABLE employee(
     role_id INT,
     manager_id INT,
     PRIMARY KEY (id),
-    FOREIGN KEY (role_id) REFERENCES role(id),
+    FOREIGN KEY (role_id) REFERENCES role(role_id),
     FOREIGN KEY (manager_id) REFERENCES employee(id)
  );

@@ -39,4 +39,4 @@ VALUES ("Heather","Hewitt", 6, 3);
 
 SELECT title, first_name, last_name, salary, manager_id
 FROM employee
-INNER JOIN role ON employee.role_id = role.id;
+INNER JOIN role ON employee.role_id = role.role_id;
