@@ -65,11 +65,11 @@ const init = () => {
 //query pulls all employee information from all tables, returns to firstChoice question
 function viewAllEmployees() {
 	conn.query(
-		'SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id',
+		'SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id',
 		(err, res) => {
 			if (err) throw err;
 			console.table(res);
-			init();
+			setTimeout(() => init(), 2000);
 		}
 	);
 }
@@ -224,8 +224,9 @@ function addTables(answer) {
 								(err, res) => {
 									if (err) throw err;
 									console.log(
-										chalk.red.bgGreen(`${deptInput} was added to the table`)
+										chalk.white.bgGreen(`${deptInput} was added to the table`)
 									);
+									setTimeout(() => init(), 2000);
 								}
 						  )
 						: addEntry();
@@ -238,9 +239,9 @@ function addTables(answer) {
 		let getDeptId = '';
 
 		conn.query(
-			`SELECT department.id FROM department WHERE name='${roleDept}'`,
+			`SELECT department.department_id FROM department WHERE name='${roleDept}'`,
 			(err, res) => {
-				getDeptId = res[0].id;
+				getDeptId = res[0].department_id;
 			}
 		);
 
@@ -262,8 +263,9 @@ function addTables(answer) {
 								`INSERT INTO role (title,salary,department_id) VALUES ('${roleInput}', '${roleSalary}','${getDeptId}')`,
 								(err, res) => {
 									console.log(
-										chalk.red.bgGreen(`${roleInput} was added to the table`)
+										chalk.white.bgGreen(`${roleInput} was added to the table`)
 									);
+									setTimeout(() => init(), 2000);
 								}
 						  )
 						: addEntry();
@@ -306,10 +308,11 @@ function addTables(answer) {
 						`INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES ('${first_name}', '${last_name}','${getRoleId}','${getMgrId}')`,
 						(err, res) => {
 							console.log(
-								chalk.red.bgGreen(
+								chalk.white.bgGreen(
 									`${first_name} ${last_name} was added to the table`
 								)
 							);
+							setTimeout(() => init(), 2000);
 						}
 					);
 				} else {
@@ -321,10 +324,13 @@ function addTables(answer) {
 									`${first_name} ${last_name} was added to the table`
 								)
 							);
+							setTimeout(() => init(), 2000);
 						}
 					);
 				}
 			});
+	} else {
+		init();
 	}
 }
 
@@ -341,11 +347,11 @@ function updateLists(column, name) {
 //function to handle dept query requests
 function deptQuery(filter) {
 	conn.query(
-		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id WHERE department.name='${filter}'`,
+		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE department.name='${filter}'`,
 		(err, res) => {
 			if (err) throw err;
 			console.table(res);
-			init();
+			setTimeout(() => init(), 2000);
 		}
 	);
 }
@@ -353,11 +359,11 @@ function deptQuery(filter) {
 //function to handle role query requests
 function roleQuery(filter) {
 	conn.query(
-		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id WHERE role.title='${filter}'`,
+		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE role.title='${filter}'`,
 		(err, res) => {
 			if (err) throw err;
 			console.table(res);
-			init();
+			setTimeout(() => init(), 2000);
 		}
 	);
 }
@@ -373,14 +379,14 @@ function employeeQuery(col, select) {
 		console.log(
 			chalk.white.bgBlue(`${selectFormatted} is not on the company roster`)
 		);
-		init();
+		setTimeout(() => init(), 2000);
 	} else {
 		conn.query(
-			`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.id LEFT JOIN department AS department ON role.department_id=department.id WHERE ${col}='${select}'`,
+			`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE ${col}='${select}'`,
 			(err, res) => {
 				if (err) throw err;
 				console.table(res);
-				init();
+				setTimeout(() => init(), 2000);
 			}
 		);
 	}
