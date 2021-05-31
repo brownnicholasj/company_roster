@@ -82,7 +82,7 @@ const viewSelectEmployees = () => {
 				name: 'selectChoice',
 				type: 'list',
 				message: 'What criteria would you like to filter on?',
-				choices: ['Department', 'Role', 'Employee', 'EXIT'],
+				choices: ['Department', 'Role', 'Employee', 'Manager', 'EXIT'],
 			},
 			{
 				name: 'deptSelect',
@@ -112,6 +112,13 @@ const viewSelectEmployees = () => {
 					`Input the ${answers.employeeSelect} of the employee you want to find`,
 				when: (answers) => answers.selectChoice === 'Employee',
 			},
+			{
+				name: 'mgrSelect',
+				type: 'list',
+				message: `What manager's direct reports would you like to see?`,
+				choices: mgrList,
+				when: (answers) => answers.selectChoice === 'Manager',
+			},
 		])
 		.then((answer) => {
 			switch (answer.selectChoice) {
@@ -121,6 +128,8 @@ const viewSelectEmployees = () => {
 					return roleQuery(answer.roleSelect);
 				case 'Employee':
 					return employeeQuery(answer.employeeSelect, answer.nameSelect);
+				case 'Manager':
+					return managerQuery(answer.mgrSelect);
 				case 'EXIT':
 					conn.end();
 			}
@@ -253,18 +262,6 @@ function updateTables(answers) {
 
 		var newMgr = mgrArray[0].trim();
 	}
-
-	// console.log(`employeeArray === ${employeeArray}`);
-	// console.log(`employeeID === ${employeeId}`);
-	// console.log(`employeename === ${employee_name}`);
-	// console.log(`roleid === ${roleId}`);
-	// console.log(`managerid === ${managerId}`);
-	// console.log(`newrole === ${newRole}`);
-	// // console.log(`newmgr === ${newMgr}`);
-
-	// console.log(roleArray);
-	// console.log(mgrArray);
-	// console.log(`roleid == ${newRole}`);
 
 	if (answers.updateChoice === 'Employee Role') {
 		conn.query(
@@ -484,6 +481,22 @@ function employeeQuery(col, select) {
 			}
 		);
 	}
+}
+
+//function to handle employee specific requests
+function managerQuery(select) {
+	let mgrArray = select.split('-');
+	let mgrId = mgrArray[0].trim();
+	let mgrName = mgrArray[1].trim();
+
+	conn.query(
+		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE manager_id='${mgrId}'`,
+		(err, res) => {
+			if (err) throw err;
+			console.table(res);
+			setTimeout(() => init(), 2000);
+		}
+	);
 }
 
 //function to format the input to first letter capitalized lowercase to the rest of the string, plan to use at multiple points
