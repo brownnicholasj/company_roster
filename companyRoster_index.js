@@ -299,29 +299,31 @@ function addTables(answer) {
 				},
 			])
 			.then((answers) => {
-				!answers.confirmEmployee
-					? addEntry()
-					: getMgrId
-					? conn.query(
-							`INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES ('${first_name}', '${last_name}','${getRoleId}','${getMgrId}')`,
-							(err, res) => {
-								console.log(
-									chalk.red.bgGreen(
-										`${first_name} ${last_name} was added to the table`
-									)
-								);
-							}
-					  )
-					: conn.query(
-							`INSERT INTO employee (first_name,last_name,role_id) VALUES ('${first_name}', '${last_name}','${getRoleId}')`,
-							(err, res) => {
-								console.log(
-									chalk.red.bgGreen(
-										`${first_name} ${last_name} was added to the table`
-									)
-								);
-							}
-					  );
+				if ((answers.confirmEmployee = false)) {
+					addEntry();
+				} else if (getMgrId !== 'none') {
+					conn.query(
+						`INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES ('${first_name}', '${last_name}','${getRoleId}','${getMgrId}')`,
+						(err, res) => {
+							console.log(
+								chalk.red.bgGreen(
+									`${first_name} ${last_name} was added to the table`
+								)
+							);
+						}
+					);
+				} else {
+					conn.query(
+						`INSERT INTO employee (first_name,last_name,role_id) VALUES ('${first_name}', '${last_name}','${getRoleId}')`,
+						(err, res) => {
+							console.log(
+								chalk.red.bgGreen(
+									`${first_name} ${last_name} was added to the table`
+								)
+							);
+						}
+					);
+				}
 			});
 	}
 }
