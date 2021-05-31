@@ -23,6 +23,7 @@ var deptList = [];
 var roleList = [];
 var employeeFirst = [];
 var employeeLast = [];
+var getDeptId_Role = [];
 
 const init = () => {
 	inquirer
@@ -203,44 +204,69 @@ const addEntry = () => {
 
 function addTables(answer) {
 	if (answer.addChoice === 'Department') {
-		if (deptList.includes(answer.deptAdd)) {
-			console.log(
-				chalk.black.bgRed(`${answer.deptAdd} is already in the table`)
-			);
+		let deptInput = answer.deptAdd;
+		if (deptList.includes(deptInput)) {
+			console.log(chalk.white.bgRed(`${deptInput} is already in the table`));
 			addEntry();
 		} else {
-			conn.query(
-				`INSERT INTO department (name) VALUES ('${answer.deptAdd}')`,
-				(err, res) => {
-					if (err) throw err;
-					console.log(
-						chalk.red.bgGreen(`${answer.deptAdd} was added to the table`)
-					);
-				}
-			);
+			inquirer
+				.prompt([
+					{
+						name: 'confirmDept',
+						type: 'confirm',
+						message: `Are you sure you want to add ${deptInput} as a department?`,
+					},
+				])
+				.then((answers) => {
+					answers.confirmDept
+						? conn.query(
+								`INSERT INTO department (name) VALUES ('${deptInput}')`,
+								(err, res) => {
+									if (err) throw err;
+									console.log(
+										chalk.red.bgGreen(`${deptInput} was added to the table`)
+									);
+								}
+						  )
+						: addEntry();
+				});
 		}
 	} else if (answer.addChoice === 'Role') {
-		if (roleList.includes(answer.roleAdd)) {
-			console.log(
-				chalk.black.bgRed(`${answer.roleAdd} is already in the table`)
-			);
+		let roleInput = answer.roleAdd;
+		let roleSalary = answer.roleSalary;
+		let roleDept = answer.roleDept;
+
+		conn.query(
+			`SELECT department.id FROM department WHERE name='${roleDept}'`,
+			(err, res) => {
+				getDeptId_Role = res[0].id;
+			}
+		);
+
+		if (roleList.includes(roleInput)) {
+			console.log(chalk.white.bgRed(`${roleInput} is already in the table`));
 			addEntry();
 		} else {
-			// var getDeptId = conn.query(
-			// 	`SELECT id FROM department WHERE name='${answer.roleDept}'`,
-			// 	(err, res) => {
-			// 		return res[0];
-			// 	}
-			// );
-			// console.log(`set to ${getDeptId}`);
-			// conn.query(
-			// 	`INSERT INTO role (title,salary,department_id) VALUES ('${answer.roleAdd}', '${answer.roleSalary}','${getDeptId}')`,
-			// 	(err, res) => {
-			// 		console.log(
-			// 			chalk.red.bgGreen(`${answer.roleAdd} was added to the table`)
-			// 		);
-			// 	}
-			// );
+			inquirer
+				.prompt([
+					{
+						name: 'confirmRole',
+						type: 'confirm',
+						message: `Are you sure you want to add ${roleInput} as a role?`,
+					},
+				])
+				.then((answers) => {
+					answers.confirmRole
+						? conn.query(
+								`INSERT INTO role (title,salary,department_id) VALUES ('${roleInput}', '${roleSalary}','${getDeptId_Role}')`,
+								(err, res) => {
+									console.log(
+										chalk.red.bgGreen(`${roleInput} was added to the table`)
+									);
+								}
+						  )
+						: addEntry();
+				});
 		}
 	}
 }
