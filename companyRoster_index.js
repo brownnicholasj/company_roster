@@ -24,6 +24,7 @@ var roleList = [];
 var employeeFirst = [];
 var employeeLast = [];
 var mgrList = [];
+var employeeList = [];
 
 const init = () => {
 	inquirer
@@ -35,7 +36,7 @@ const init = () => {
 				'View All Employees',
 				'View Select Employees',
 				'Add New Department, Role, or Employee',
-				'UPDATE',
+				'Update Employees Role or Manager',
 				'EXIT',
 			],
 		})
@@ -52,8 +53,8 @@ const init = () => {
 				case 'Add New Department, Role, or Employee':
 					addEntry();
 					return;
-				case 'UPDATE':
-					console.log(`selected UpDATE with answer = ${answer.firstChoice}`);
+				case 'Update Employees Role or Manager':
+					updateEmployee();
 					return;
 				default:
 					endConnection();
@@ -202,6 +203,94 @@ const addEntry = () => {
 		});
 };
 
+const updateEmployee = () => {
+	inquirer
+		.prompt([
+			{
+				name: 'updateChoice',
+				type: 'list',
+				message: 'What would you like to Update?',
+				choices: ['Employee Role', 'Employee Manager', 'EXIT'],
+			},
+			{
+				name: 'employeeSelect',
+				type: 'list',
+				message: 'Which employee would you like to update?',
+				choices: employeeList,
+			},
+			{
+				name: 'newRole',
+				type: 'list',
+				message: `What is the employee's new role?`,
+				choices: roleList,
+				when: (answers) => answers.updateChoice === 'Employee Role',
+			},
+			{
+				name: 'newManager',
+				type: 'list',
+				message: `Who is the employee's new manager?`,
+				choices: mgrList,
+				when: (answers) => answers.updateChoice === 'Employee Manager',
+			},
+		])
+		.then((answers) => {
+			updateTables(answers);
+		});
+};
+
+function updateTables(answers) {
+	let employeeArray = answers.employeeSelect.split('-');
+	let employeeId = employeeArray[0].trim();
+	let employee_name = employeeArray[1].trim();
+	let roleId = employeeArray[3].trim();
+	let managerId = employeeArray[5].trim();
+	if (answers.newRole) {
+		var roleArray = answers.newRole.split('-');
+		var newRole = roleArray[0].trim();
+	}
+	if (answers.newManager) {
+		var mgrArray = answers.newManager.split('-');
+
+		var newMgr = mgrArray[0].trim();
+	}
+
+	// console.log(`employeeArray === ${employeeArray}`);
+	// console.log(`employeeID === ${employeeId}`);
+	// console.log(`employeename === ${employee_name}`);
+	// console.log(`roleid === ${roleId}`);
+	// console.log(`managerid === ${managerId}`);
+	// console.log(`newrole === ${newRole}`);
+	// // console.log(`newmgr === ${newMgr}`);
+
+	// console.log(roleArray);
+	// console.log(mgrArray);
+	// console.log(`roleid == ${newRole}`);
+
+	if (answers.updateChoice === 'Employee Role') {
+		conn.query(
+			`UPDATE employee SET role_id = '${newRole}' WHERE id = '${employeeId}'`,
+			(err, res) => {
+				if (err) throw err;
+				console.log(chalk.white.bgGreen(`${employee_name}'s role was updated`));
+				setTimeout(() => init(), 2000);
+			}
+		);
+	} else if (answers.updateChoice === 'Employee Manager') {
+		conn.query(
+			`UPDATE employee SET manager_id = '${newMgr}' WHERE id = '${employeeId}'`,
+			(err, res) => {
+				if (err) throw err;
+				console.log(
+					chalk.white.bgGreen(`${employee_name}'s manager was updated`)
+				);
+				setTimeout(() => init(), 2000);
+			}
+		);
+	} else {
+		setTimeout(() => init(), 2000);
+	}
+}
+
 function addTables(answer) {
 	if (answer.addChoice === 'Department') {
 		let deptInput = answer.deptAdd;
@@ -274,7 +363,8 @@ function addTables(answer) {
 	} else if (answer.addChoice === 'Employee') {
 		let first_name = answer.employeeAddFirst;
 		let last_name = answer.employeeAddLast;
-		let employee_role = answer.employeeRole;
+		let roleArray = answer.employeeRole.split('-');
+		let employee_role = roleArray[1].trim();
 		let employee_mgr = '';
 		if (answer.employeeMgr === 'none') {
 			employee_mgr = '';
@@ -342,6 +432,7 @@ function updateLists(column, name) {
 	employeeFirst = nameSearch.getFirstName();
 	employeeLast = nameSearch.getLastName();
 	mgrList = nameSearch.getManagers();
+	employeeList = nameSearch.getEmployees();
 }
 
 //function to handle dept query requests
@@ -358,8 +449,11 @@ function deptQuery(filter) {
 
 //function to handle role query requests
 function roleQuery(filter) {
+	let roleArray = filter.split('-');
+	let role = roleArray[1].trim();
+
 	conn.query(
-		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE role.title='${filter}'`,
+		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE role.title='${role}'`,
 		(err, res) => {
 			if (err) throw err;
 			console.table(res);
