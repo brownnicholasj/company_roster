@@ -193,10 +193,57 @@ const addEntry = () => {
 			},
 		])
 		.then((answer) => {
-			console.log(answer);
-			init();
+			if (answer.addChoice !== 'EXIT') {
+				addTables(answer);
+			} else {
+				endConnection();
+			}
 		});
 };
+
+function addTables(answer) {
+	if (answer.addChoice === 'Department') {
+		if (deptList.includes(answer.deptAdd)) {
+			console.log(
+				chalk.black.bgRed(`${answer.deptAdd} is already in the table`)
+			);
+			addEntry();
+		} else {
+			conn.query(
+				`INSERT INTO department (name) VALUES ('${answer.deptAdd}')`,
+				(err, res) => {
+					if (err) throw err;
+					console.log(
+						chalk.red.bgGreen(`${answer.deptAdd} was added to the table`)
+					);
+				}
+			);
+		}
+	} else if (answer.addChoice === 'Role') {
+		if (roleList.includes(answer.roleAdd)) {
+			console.log(
+				chalk.black.bgRed(`${answer.roleAdd} is already in the table`)
+			);
+			addEntry();
+		} else {
+			// var getDeptId = conn.query(
+			// 	`SELECT id FROM department WHERE name='${answer.roleDept}'`,
+			// 	(err, res) => {
+			// 		return res[0];
+			// 	}
+			// );
+			// console.log(`set to ${getDeptId}`);
+			// conn.query(
+			// 	`INSERT INTO role (title,salary,department_id) VALUES ('${answer.roleAdd}', '${answer.roleSalary}','${getDeptId}')`,
+			// 	(err, res) => {
+			// 		console.log(
+			// 			chalk.red.bgGreen(`${answer.roleAdd} was added to the table`)
+			// 		);
+			// 	}
+			// );
+		}
+	}
+}
 
 //function to update Lists of roles and departments used in inquire questions
 function updateLists(column, name) {
