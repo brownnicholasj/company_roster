@@ -38,6 +38,7 @@ const init = () => {
 				'Add New Department, Role, or Employee',
 				'Update Employees, Role, or Manager',
 				'Delete Employee, Role, or Department',
+				'View Budget',
 				'EXIT',
 			],
 		})
@@ -59,6 +60,9 @@ const init = () => {
 					return;
 				case 'Delete Employee, Role, or Department':
 					deleteItem();
+					return;
+				case 'View Budget':
+					budget();
 					return;
 				default:
 					endConnection();
@@ -135,7 +139,7 @@ const viewSelectEmployees = () => {
 				case 'Manager':
 					return managerQuery(answer.mgrSelect);
 				case 'EXIT':
-					conn.end();
+					endConnection();
 			}
 		});
 };
@@ -578,8 +582,6 @@ const deleteItem = () => {
 				break;
 		}
 
-		console.log(`delete ${idnum} from ${col} on table ${table}`);
-
 		inquirer
 			.prompt([
 				{
@@ -613,9 +615,53 @@ const deleteItem = () => {
 	}
 };
 
+const budget = () => {
+	inquirer
+		.prompt([
+			{
+				name: 'budgetChoice',
+				type: 'list',
+				message: 'How would you like to review the budget?',
+				choices: ['Total Budget', 'Department', 'EXIT'],
+			},
+			{
+				name: 'deptBudget',
+				type: 'list',
+				message: 'Which department would you like to review?',
+				choices: deptList,
+				when: (answers) => answers.budgetChoice === 'Department',
+			},
+		])
+		.then((answers) => {
+			if (answers.budgetChoice === 'Department') {
+				let deptSelect = answers.deptBudget;
+
+				conn.query(
+					`SELECT department.name, SUM(salary) AS salaries FROM employee INNER JOIN role USING (role_id) INNER JOIN department USING (department_id) WHERE department.name = '${deptSelect}' GROUP BY department.name`,
+					(err, res) => {
+						if (err) throw err;
+						console.table(res);
+						setTimeout(() => init(), 2000);
+					}
+				);
+			} else if (answers.budgetChoice === 'Total Budget') {
+				conn.query(
+					`SELECT department.name, SUM(salary) AS salaries FROM employee INNER JOIN role USING (role_id) INNER JOIN department USING (department_id) GROUP BY department.name`,
+					(err, res) => {
+						if (err) throw err;
+						console.table(res);
+						setTimeout(() => init(), 2000);
+					}
+				);
+			} else {
+				setTimeout(() => init(), 2000);
+			}
+		});
+};
+
 function endConnection() {
 	console.log(chalk.white.bgRed.bold(`closing connection, goodbye`));
-	conn.end;
+	conn.end();
 }
 
 // connect to the mysql server and sql database
