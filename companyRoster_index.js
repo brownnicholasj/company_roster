@@ -36,7 +36,8 @@ const init = () => {
 				'View All Employees',
 				'View Select Employees',
 				'Add New Department, Role, or Employee',
-				'Update Employees Role or Manager',
+				'Update Employees, Role, or Manager',
+				'Delete Employee, Role, or Department',
 				'EXIT',
 			],
 		})
@@ -53,8 +54,11 @@ const init = () => {
 				case 'Add New Department, Role, or Employee':
 					addEntry();
 					return;
-				case 'Update Employees Role or Manager':
+				case 'Update Employees, Role, or Manager':
 					updateEmployee();
+					return;
+				case 'Delete Employee, Role, or Department':
+					deleteItem();
 					return;
 				default:
 					endConnection();
@@ -505,6 +509,109 @@ function formatInput(string) {
 	let stringFormatted = stringLower[0].toUpperCase() + stringLower.substring(1);
 	return stringFormatted;
 }
+
+const deleteItem = () => {
+	inquirer
+		.prompt([
+			{
+				name: 'deleteChoice',
+				type: 'list',
+				message: 'What would you like to Delete?',
+				choices: ['Employee', 'Role', 'Department', 'EXIT'],
+			},
+			{
+				name: 'employeeDelete',
+				type: 'list',
+				message: 'Which employee would you like to Delete?',
+				choices: employeeList,
+				when: (answers) => answers.deleteChoice === 'Employee',
+			},
+			{
+				name: 'roleDelete',
+				type: 'list',
+				message: `What role would you like to Delete?`,
+				choices: roleList,
+				when: (answers) => answers.deleteChoice === 'Role',
+			},
+			{
+				name: 'deptDelete',
+				type: 'list',
+				message: `What department would you like to Delete?`,
+				choices: deptList,
+				when: (answers) => answers.deleteChoice === 'Department',
+			},
+		])
+		.then((answers) => {
+			switch (answers.deleteChoice) {
+				case 'Employee':
+					deleteConfirm(
+						answers.deleteChoice.toLowerCase(),
+						answers.employeeDelete
+					);
+					return;
+				case 'Role':
+					deleteConfirm(answers.deleteChoice.toLowerCase(), answers.roleDelete);
+					return;
+				case 'Department':
+					deleteConfirm(answers.deleteChoice.toLowerCase(), answers.deptDelete);
+					return;
+				default:
+					endConnection();
+					return;
+			}
+		});
+
+	function deleteConfirm(choice, select) {
+		let table = choice;
+		let selectArray = select.split('-');
+		let idnum = selectArray[0].trim();
+		let col = '';
+		switch (choice) {
+			case 'employee':
+				col = 'id';
+				break;
+			case 'role':
+				col = 'role_id';
+				break;
+			case 'department':
+				col = 'name';
+				break;
+		}
+
+		console.log(`delete ${idnum} from ${col} on table ${table}`);
+
+		inquirer
+			.prompt([
+				{
+					name: 'confirmDelete',
+					type: 'confirm',
+					message: `Are you sure you want to delete ${select} from ${table}?`,
+				},
+			])
+			.then((answer) => {
+				if (answer.confirmDelete === false) {
+					deleteItem();
+				} else {
+					conn.query(
+						`DELETE FROM ${table} WHERE ${col} = '${idnum}'`,
+						(err, res) => {
+							if (err) {
+								console.log(
+									chalk.white.bgRed(
+										`This ${table} still has linked associations to other tables, need to remove before you can delete the ${table}.`
+									)
+								);
+								return setTimeout(() => deleteItem());
+							}
+							console.log(chalk.white.bgGreen(`Item has been Deleted`));
+							setTimeout(() => init(), 2000);
+						}
+					);
+				}
+			})
+			.catch((err) => console.log(err));
+	}
+};
 
 function endConnection() {
 	console.log(chalk.white.bgRed.bold(`closing connection, goodbye`));
