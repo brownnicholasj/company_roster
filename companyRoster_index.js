@@ -10,6 +10,8 @@ const deptQuery = require('./queries/deptQuery');
 const roleQuery = require('./queries/roleQuery');
 const employeeQuery = require('./queries/employeeQuery');
 const managerQuery = require('./queries/managerQuery');
+const addDepartment = require('./queries/addDepartment');
+const addRole = require('./queries/addRole');
 const addTables = require('./queries/addTables');
 
 // connection information for the sql database
@@ -139,11 +141,9 @@ const viewSelectEmployees = () => {
 			switch (answer.selectChoice) {
 				case 'Department':
 					new deptQuery(answer.deptSelect);
-					setTimeout(() => init(), 2000);
 					break;
 				case 'Role':
 					new roleQuery(answer.roleSelect);
-					setTimeout(() => init(), 2000);
 					break;
 				case 'Employee':
 					new employeeQuery(
@@ -152,17 +152,15 @@ const viewSelectEmployees = () => {
 						employeeFirst,
 						employeeLast
 					);
-					setTimeout(() => init(), 2000);
 					break;
 				case 'Manager':
 					new managerQuery(answer.mgrSelect);
-					setTimeout(() => init(), 2000);
 					break;
 				case 'EXIT':
-					init();
 					break;
 			}
-		});
+		})
+		.then(() => setTimeout(() => init(), 2000));
 };
 
 const addEntry = () => {
@@ -233,13 +231,13 @@ const addEntry = () => {
 			},
 		])
 		.then((answer) => {
-			if (answer.addChoice !== 'EXIT') {
-				new addTables(answer, deptList, roleList);
+			if (answer.addChoice === 'Department') {
+				new addDepartment(answer, deptList);
+			} else if (answer.addChoice === 'Role') {
+				new addRole(answer, roleList);
 			}
 		})
-		.then(() => {
-			setTimeout(() => init(), 2000);
-		});
+		.then(() => setTimeout(() => init(), 2000));
 };
 
 const updateEmployee = () => {
