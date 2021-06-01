@@ -29,6 +29,9 @@ class AddRole {
 		});
 
 		getDeptId.then(() => {
+			for (let i = 0; i < roleList.length; i++) {
+				roleList[i] = roleList[i].split(' - ').pop();
+			}
 			if (roleList.includes(roleInput)) {
 				return console.log(
 					chalk.white.bgRed(`${roleInput} is already in the table`)
