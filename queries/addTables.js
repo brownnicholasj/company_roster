@@ -13,12 +13,13 @@ const chalk = require('chalk');
 const inquirer = require('inquirer');
 
 class AddTables {
-	constructor(answer, deptList) {
+	constructor(answer, deptList, roleList) {
 		if (answer.addChoice === 'Department') {
 			let deptInput = answer.deptAdd;
 			if (deptList.includes(deptInput)) {
-				console.log(chalk.white.bgRed(`${deptInput} is already in the table`));
-				addEntry();
+				return console.log(
+					chalk.white.bgRed(`${deptInput} is already in the table`)
+				);
 			} else {
 				inquirer
 					.prompt([
@@ -34,12 +35,12 @@ class AddTables {
 									`INSERT INTO department (name) VALUES ('${deptInput}')`,
 									(err, res) => {
 										if (err) throw err;
-										console.log(
+										return console.log(
 											chalk.white.bgGreen(`${deptInput} was added to the table`)
 										);
 									}
 							  )
-							: addEntry();
+							: null;
 					});
 			}
 		} else if (answer.addChoice === 'Role') {
@@ -56,8 +57,9 @@ class AddTables {
 			);
 
 			if (roleList.includes(roleInput)) {
-				console.log(chalk.white.bgRed(`${roleInput} is already in the table`));
-				addEntry();
+				return console.log(
+					chalk.white.bgRed(`${roleInput} is already in the table`)
+				);
 			} else {
 				inquirer
 					.prompt([
@@ -72,12 +74,12 @@ class AddTables {
 							? conn.query(
 									`INSERT INTO role (title,salary,department_id) VALUES ('${roleInput}', '${roleSalary}','${getDeptId}')`,
 									(err, res) => {
-										console.log(
+										return console.log(
 											chalk.white.bgGreen(`${roleInput} was added to the table`)
 										);
 									}
 							  )
-							: addEntry();
+							: null;
 					});
 			}
 		} else if (answer.addChoice === 'Employee') {
@@ -112,12 +114,11 @@ class AddTables {
 				])
 				.then((answers) => {
 					if ((answers.confirmEmployee = false)) {
-						addEntry();
 					} else if (getMgrId !== 'none') {
 						conn.query(
 							`INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES ('${first_name}', '${last_name}','${getRoleId}','${getMgrId}')`,
 							(err, res) => {
-								console.log(
+								return console.log(
 									chalk.white.bgGreen(
 										`${first_name} ${last_name} was added to the table`
 									)
@@ -128,7 +129,7 @@ class AddTables {
 						conn.query(
 							`INSERT INTO employee (first_name,last_name,role_id) VALUES ('${first_name}', '${last_name}','${getRoleId}')`,
 							(err, res) => {
-								console.log(
+								return console.log(
 									chalk.red.bgGreen(
 										`${first_name} ${last_name} was added to the table`
 									)
@@ -138,6 +139,7 @@ class AddTables {
 					}
 				});
 		} else {
+			null;
 		}
 	}
 }

@@ -159,7 +159,7 @@ const viewSelectEmployees = () => {
 					setTimeout(() => init(), 2000);
 					break;
 				case 'EXIT':
-					endConnection();
+					init();
 					break;
 			}
 		});
@@ -234,10 +234,11 @@ const addEntry = () => {
 		])
 		.then((answer) => {
 			if (answer.addChoice !== 'EXIT') {
-				new addTables(answer, deptList);
-			} else {
-				endConnection();
+				new addTables(answer, deptList, roleList);
 			}
+		})
+		.then(() => {
+			setTimeout(() => init(), 2000);
 		});
 };
 
