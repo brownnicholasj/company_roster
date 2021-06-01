@@ -5,6 +5,11 @@ const chalk = require('chalk');
 const deptHelper = require('./lib/deptHelper');
 const roleHelper = require('./lib/roleHelper');
 const employeeHelper = require('./lib/employeeHelper');
+const viewAllEmployees = require('./queries/viewAllEmployees');
+const deptQuery = require('./queries/deptQuery');
+const roleQuery = require('./queries/roleQuery');
+const employeeQuery = require('./queries/employeeQuery');
+const managerQuery = require('./queries/managerQuery');
 
 // connection information for the sql database
 const conn = mysql.createConnection({
@@ -47,7 +52,8 @@ const init = () => {
 			updateLists();
 			switch (answer.firstChoice) {
 				case 'View All Employees':
-					viewAllEmployees();
+					new viewAllEmployees();
+					setTimeout(() => init(), 2000);
 					return;
 				case 'View Select Employees':
 					viewSelectEmployees();
@@ -72,16 +78,16 @@ const init = () => {
 };
 
 //query pulls all employee information from all tables, returns to firstChoice question
-function viewAllEmployees() {
-	conn.query(
-		'SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id',
-		(err, res) => {
-			if (err) throw err;
-			console.table(res);
-			setTimeout(() => init(), 2000);
-		}
-	);
-}
+// function viewAllEmployees() {
+// 	conn.query(
+// 		'SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id',
+// 		(err, res) => {
+// 			if (err) throw err;
+// 			console.table(res);
+// 			setTimeout(() => init(), 2000);
+// 		}
+// 	);
+// }
 
 const viewSelectEmployees = () => {
 	inquirer
@@ -131,15 +137,29 @@ const viewSelectEmployees = () => {
 		.then((answer) => {
 			switch (answer.selectChoice) {
 				case 'Department':
-					return deptQuery(answer.deptSelect);
+					new deptQuery(answer.deptSelect);
+					setTimeout(() => init(), 2000);
+					break;
 				case 'Role':
-					return roleQuery(answer.roleSelect);
+					new roleQuery(answer.roleSelect);
+					setTimeout(() => init(), 2000);
+					break;
 				case 'Employee':
-					return employeeQuery(answer.employeeSelect, answer.nameSelect);
+					new employeeQuery(
+						answer.employeeSelect,
+						answer.nameSelect,
+						employeeFirst,
+						employeeLast
+					);
+					setTimeout(() => init(), 2000);
+					break;
 				case 'Manager':
-					return managerQuery(answer.mgrSelect);
+					new managerQuery(answer.mgrSelect);
+					setTimeout(() => init(), 2000);
+					break;
 				case 'EXIT':
 					endConnection();
+					break;
 			}
 		});
 };
@@ -441,78 +461,78 @@ function updateLists(column, name) {
 }
 
 //function to handle dept query requests
-function deptQuery(filter) {
-	conn.query(
-		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE department.name='${filter}'`,
-		(err, res) => {
-			if (err) throw err;
-			console.table(res);
-			setTimeout(() => init(), 2000);
-		}
-	);
-}
+// function deptQuery(filter) {
+// 	conn.query(
+// 		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE department.name='${filter}'`,
+// 		(err, res) => {
+// 			if (err) throw err;
+// 			console.table(res);
+// 			setTimeout(() => init(), 2000);
+// 		}
+// 	);
+// }
 
-//function to handle role query requests
-function roleQuery(filter) {
-	let roleArray = filter.split('-');
-	let role = roleArray[1].trim();
+// //function to handle role query requests
+// function roleQuery(filter) {
+// 	let roleArray = filter.split('-');
+// 	let role = roleArray[1].trim();
 
-	conn.query(
-		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE role.title='${role}'`,
-		(err, res) => {
-			if (err) throw err;
-			console.table(res);
-			setTimeout(() => init(), 2000);
-		}
-	);
-}
+// 	conn.query(
+// 		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE role.title='${role}'`,
+// 		(err, res) => {
+// 			if (err) throw err;
+// 			console.table(res);
+// 			setTimeout(() => init(), 2000);
+// 		}
+// 	);
+// }
 
-//function to handle employee specific requests
-function employeeQuery(col, select) {
-	let selectFormatted = formatInput(select);
+// //function to handle employee specific requests
+// function employeeQuery(col, select) {
+// 	let selectFormatted = formatInput(select);
 
-	if (
-		!employeeFirst.includes(selectFormatted) &&
-		!employeeLast.includes(selectFormatted)
-	) {
-		console.log(
-			chalk.white.bgBlue(`${selectFormatted} is not on the company roster`)
-		);
-		setTimeout(() => init(), 2000);
-	} else {
-		conn.query(
-			`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE ${col}='${select}'`,
-			(err, res) => {
-				if (err) throw err;
-				console.table(res);
-				setTimeout(() => init(), 2000);
-			}
-		);
-	}
-}
+// 	if (
+// 		!employeeFirst.includes(selectFormatted) &&
+// 		!employeeLast.includes(selectFormatted)
+// 	) {
+// 		console.log(
+// 			chalk.white.bgBlue(`${selectFormatted} is not on the company roster`)
+// 		);
+// 		setTimeout(() => init(), 2000);
+// 	} else {
+// 		conn.query(
+// 			`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE ${col}='${select}'`,
+// 			(err, res) => {
+// 				if (err) throw err;
+// 				console.table(res);
+// 				setTimeout(() => init(), 2000);
+// 			}
+// 		);
+// 	}
+// }
 
-//function to handle employee specific requests
-function managerQuery(select) {
-	let mgrArray = select.split('-');
-	let mgrId = mgrArray[0].trim();
-	let mgrName = mgrArray[1].trim();
+// //function to handle employee specific requests
+// function managerQuery(select) {
+// 	let mgrArray = select.split('-');
+// 	let mgrId = mgrArray[0].trim();
+// 	let mgrName = mgrArray[1].trim();
 
-	conn.query(
-		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE manager_id='${mgrId}'`,
-		(err, res) => {
-			if (err) throw err;
-			console.table(res);
-			setTimeout(() => init(), 2000);
-		}
-	);
-}
+// 	conn.query(
+// 		`SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id WHERE manager_id='${mgrId}'`,
+// 		(err, res) => {
+// 			if (err) throw err;
+// 			console.table(res);
+// 			setTimeout(() => init(), 2000);
+// 		}
+// 	);
+// }
 
 //function to format the input to first letter capitalized lowercase to the rest of the string, plan to use at multiple points
-function formatInput(string) {
-	let stringLower = string.toLowerCase();
-	let stringFormatted = stringLower[0].toUpperCase() + stringLower.substring(1);
-	return stringFormatted;
-}
+// function formatInput(string) {
+// 	let stringLower = string.toLowerCase();
+// 	let stringFormatted = stringLower[0].toUpperCase() + stringLower.substring(1);
+// 	return stringFormatted;
+// }
 
 const deleteItem = () => {
 	inquirer
