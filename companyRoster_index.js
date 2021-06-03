@@ -10,6 +10,7 @@ const viewEmployeeDepartment = require('./queries/viewEmployeeDepartment');
 const viewEmployeeManager = require('./queries/viewEmployeeManager');
 const addEmployeeExecute = require('./queries/addEmployeeExecute');
 const updateEmployeeRole = require('./queries/updateEmployeeRole');
+const updateEmployeeManager = require('./queries/updateEmployeeManager');
 const deptQuery = require('./queries/deptQuery');
 const roleQuery = require('./queries/roleQuery');
 const employeeQuery = require('./queries/employeeQuery');
@@ -50,6 +51,7 @@ const init = () => {
 				'View Employees by Manager',
 				'Add Employee',
 				'Update Employee Role',
+				'Update Employee Manager',
 				'EXIT',
 			],
 		})
@@ -70,6 +72,9 @@ const init = () => {
 					break;
 				case 'Update Employee Role':
 					updateRole();
+					break;
+				case 'Update Employee Manager':
+					updateManager();
 					break;
 				case 'View Budget':
 					budget();
@@ -272,6 +277,68 @@ const updateRole = () => {
 							})
 							.then(() => setTimeout(() => init(), 2000));
 					});
+				});
+		}
+	);
+};
+
+const updateManager = () => {
+	conn.query(
+		`SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS Employee, CONCAT(m.first_name,' ',m.last_name) AS Current_Mgr FROM employee AS e LEFT JOIN employee AS m ON e.manager_id = m.id`,
+		(err, results) => {
+			if (err) throw err;
+			const empList = [];
+			results.forEach(({ id, Employee, Current_Mgr }) => {
+				empList.push({ id, Employee, Current_Mgr });
+			});
+			inquirer
+				.prompt([
+					{
+						name: 'choice',
+						type: 'list',
+						choices() {
+							const choiceArr = ['Exit'];
+							results.forEach(({ id, Employee, Current_Mgr }) => {
+								choiceArr.push(
+									`${id} - ${Employee} reporting to ${Current_Mgr}`
+								);
+							});
+							return choiceArr;
+						},
+						message: 'Which Employee would you like change Managers?',
+					},
+				])
+				.then((answer) => {
+					const empString = answer.choice;
+					conn.query(
+						`SELECT e.id, CONCAT(e.first_name,' ',e.last_name) AS name, r.title FROM employee AS e INNER JOIN role AS r ON e.role_id = r.role_id`,
+						(err, results) => {
+							if (err) throw err;
+							const empList = [];
+							results.forEach(({ id, title, name }) => {
+								empList.push({ id, title, name });
+							});
+							inquirer
+								.prompt([
+									{
+										name: 'mgrChoice',
+										type: 'list',
+										choices() {
+											const mgrChoiceArr = ['None'];
+											results.forEach(({ id, title, name }) => {
+												mgrChoiceArr.push(`${id} - ${name}, ${title}`);
+											});
+											return mgrChoiceArr;
+										},
+										message: 'What is the new Manager?',
+									},
+								])
+								.then((answer) => {
+									new updateEmployeeManager(answer.mgrChoice, empString);
+								})
+								.then(() => setTimeout(() => init(), 2000));
+						}
+					);
 				});
 		}
 	);
