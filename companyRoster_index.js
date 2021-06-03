@@ -2,6 +2,8 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 // const { restoreDefaultPrompts } = require('inquirer');
 const chalk = require('chalk');
+const logo = require('asciiart-logo');
+const cTable = require('console.table');
 const viewAllEmployees = require('./queries/viewAllEmployees');
 const viewEmployeeDepartment = require('./queries/viewEmployeeDepartment');
 const viewEmployeeManager = require('./queries/viewEmployeeManager');
@@ -590,5 +592,16 @@ const endConnection = () => {
 // connect to the mysql server and sql database
 conn.connect((err) => {
 	if (err) throw err;
+	console.log(
+		logo({
+			name: 'Company Roster',
+			lineChars: 10,
+			padding: 2,
+			margin: 3,
+			borderColor: 'green',
+			logoColor: 'bold-green',
+			textColor: 'green',
+		}).render()
+	);
 	init();
 });
