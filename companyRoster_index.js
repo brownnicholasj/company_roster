@@ -11,6 +11,8 @@ const viewEmployeeManager = require('./queries/viewEmployeeManager');
 const addEmployeeExecute = require('./queries/addEmployeeExecute');
 const updateEmployeeRole = require('./queries/updateEmployeeRole');
 const updateEmployeeManager = require('./queries/updateEmployeeManager');
+const deleteEmployeeExecute = require('./queries/deleteEmployeeExecute');
+const viewAllDepartments = require('./queries/viewAllDepartments');
 const deptQuery = require('./queries/deptQuery');
 const roleQuery = require('./queries/roleQuery');
 const employeeQuery = require('./queries/employeeQuery');
@@ -52,6 +54,8 @@ const init = () => {
 				'Add Employee',
 				'Update Employee Role',
 				'Update Employee Manager',
+				'Delete Employee',
+				'View Departments',
 				'EXIT',
 			],
 		})
@@ -76,8 +80,12 @@ const init = () => {
 				case 'Update Employee Manager':
 					updateManager();
 					break;
-				case 'View Budget':
-					budget();
+				case 'Delete Employee':
+					deleteEmployee();
+					break;
+				case 'View Departments':
+					new viewAllDepartments();
+					setTimeout(() => init(), 2000);
 					break;
 				default:
 					endConnection();
@@ -340,6 +348,38 @@ const updateManager = () => {
 						}
 					);
 				});
+		}
+	);
+};
+
+const deleteEmployee = () => {
+	conn.query(
+		`SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS Employee, r.title AS Title, d.name AS Dept FROM employee AS e INNER JOIN role AS r ON e.role_id = r.role_id INNER JOIN department AS d ON r.department_id=d.department_id`,
+		(err, results) => {
+			if (err) throw err;
+			const empList = [];
+			results.forEach(({ id, Employee, Title, Dept }) => {
+				empList.push({ id, Employee, Title, Dept });
+			});
+			inquirer
+				.prompt([
+					{
+						name: 'choice',
+						type: 'list',
+						choices() {
+							const choiceArr = ['Exit'];
+							results.forEach(({ id, Employee, Title, Dept }) => {
+								choiceArr.push(`${id} - ${Employee}, ${Title} in ${Dept}`);
+							});
+							return choiceArr;
+						},
+						message: 'Which Employee would you like to delete?',
+					},
+				])
+				.then((answer) => {
+					new deleteEmployeeExecute(answer.choice);
+				})
+				.then(() => setTimeout(() => init(), 2000));
 		}
 	);
 };
