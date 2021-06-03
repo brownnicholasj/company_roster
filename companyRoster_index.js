@@ -6,6 +6,10 @@ const deptHelper = require('./lib/deptHelper');
 const roleHelper = require('./lib/roleHelper');
 const employeeHelper = require('./lib/employeeHelper');
 const viewAllEmployees = require('./queries/viewAllEmployees');
+const viewEmployeeDepartment = require('./queries/viewEmployeeDepartment');
+const viewEmployeeManager = require('./queries/viewEmployeeManager');
+const addEmployeeExecute = require('./queries/addEmployeeExecute');
+const updateEmployeeRole = require('./queries/updateEmployeeRole');
 const deptQuery = require('./queries/deptQuery');
 const roleQuery = require('./queries/roleQuery');
 const employeeQuery = require('./queries/employeeQuery');
@@ -42,37 +46,34 @@ const init = () => {
 			message: 'What action would you like to take?',
 			choices: [
 				'View All Employees',
-				'View Select Employees',
-				'Add New Department, Role, or Employee',
-				'Update Employees, Role, or Manager',
-				'Delete Employee, Role, or Department',
-				'View Budget',
+				'View Employees by Department',
+				'View Employees by Manager',
+				'Add Employee',
+				'Update Employee Role',
 				'EXIT',
 			],
 		})
 		.then((answer) => {
-			// run updateList function to populate those lists when needed
-			updateLists();
 			switch (answer.firstChoice) {
 				case 'View All Employees':
 					new viewAllEmployees();
 					setTimeout(() => init(), 2000);
-					return;
-				case 'View Select Employees':
-					viewSelectEmployees();
-					return;
-				case 'Add New Department, Role, or Employee':
-					addEntry();
-					return;
-				case 'Update Employees, Role, or Manager':
-					updateEmployee();
-					return;
-				case 'Delete Employee, Role, or Department':
-					deleteItem();
-					return;
+					break;
+				case 'View Employees by Department':
+					deptSelect();
+					break;
+				case 'View Employees by Manager':
+					managerSelect();
+					break;
+				case 'Add Employee':
+					addEmployee();
+					break;
+				case 'Update Employee Role':
+					updateRole();
+					break;
 				case 'View Budget':
 					budget();
-					return;
+					break;
 				default:
 					endConnection();
 					return;
@@ -80,6 +81,201 @@ const init = () => {
 		});
 };
 
+const deptSelect = () => {
+	conn.query('SELECT name FROM department', (err, results) => {
+		if (err) throw err;
+		// once you have the items, prompt the user for which they'd like to bid on
+		inquirer
+			.prompt([
+				{
+					name: 'choice',
+					type: 'rawlist',
+					choices() {
+						const choiceArray = [];
+						results.forEach(({ name }) => {
+							choiceArray.push(name);
+						});
+						return choiceArray;
+					},
+					message: 'What Department would you like to view?',
+				},
+			])
+			.then((answer) => {
+				new viewEmployeeDepartment(answer.choice);
+			})
+			.then(() => setTimeout(() => init(), 2000));
+	});
+};
+
+const managerSelect = () => {
+	conn.query(
+		`SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS Manager FROM employee AS e INNER JOIN employee AS m ON e.id = m.manager_id GROUP BY Manager`,
+		(err, results) => {
+			if (err) throw err;
+			const managerIdList = [];
+			results.forEach(({ id, Manager }) => {
+				managerIdList.push({ id, Manager });
+			});
+			inquirer
+				.prompt([
+					{
+						name: 'mgrChoice',
+						type: 'list',
+						choices() {
+							const mgrChoiceArr = [];
+							results.forEach(({ Manager }) => {
+								mgrChoiceArr.push(Manager);
+							});
+							return mgrChoiceArr;
+						},
+						message: 'Which Manager would you like to view?',
+					},
+				])
+				.then((answer) => {
+					new viewEmployeeManager(answer.mgrChoice, managerIdList);
+				})
+				.then(() => setTimeout(() => init(), 2000));
+		}
+	);
+};
+
+const addEmployee = () => {
+	inquirer
+		.prompt([
+			{
+				name: 'empFirst',
+				type: 'input',
+				message: 'What is the employees first name?',
+			},
+			{
+				name: 'empLast',
+				type: 'input',
+				message: 'What is the employees last name?',
+			},
+		])
+		.then((answers) => {
+			const firstName = answers.empFirst;
+			const lastName = answers.empLast;
+			conn.query(`SELECT * FROM role`, (err, results) => {
+				if (err) throw err;
+				const roleList = [];
+				results.forEach(({ role_id, title }) => {
+					roleList.push({ role_id, title });
+				});
+				inquirer
+					.prompt([
+						{
+							name: 'empRole',
+							type: 'list',
+							choices() {
+								const roleChoiceArr = [];
+								results.forEach(({ title }) => {
+									roleChoiceArr.push(title);
+								});
+								return roleChoiceArr;
+							},
+							message: 'What role will the employee have?',
+						},
+					])
+					.then((answers) => {
+						const role = answers.empRole;
+						conn.query(
+							`SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS Manager FROM employee AS e`,
+							(err, results) => {
+								if (err) throw err;
+								const managerIdList = [];
+								results.forEach(({ id, Manager }) => {
+									managerIdList.push({ id, Manager });
+								});
+								inquirer
+									.prompt([
+										{
+											name: 'mgrChoice',
+											type: 'list',
+											choices() {
+												const mgrChoiceArr = ['none'];
+												results.forEach(({ Manager }) => {
+													mgrChoiceArr.push(Manager);
+												});
+												return mgrChoiceArr;
+											},
+											message: `Who will be ${firstName} ${lastName}'s Manager?`,
+										},
+									])
+									.then((answer) => {
+										new addEmployeeExecute(
+											firstName,
+											lastName,
+											role,
+											roleList,
+											answer.mgrChoice,
+											managerIdList
+										);
+									})
+									.then(() => setTimeout(() => init(), 2000));
+							}
+						);
+					});
+			});
+		});
+};
+
+const updateRole = () => {
+	conn.query(
+		`SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS Employee, r.title AS Current_Role FROM employee AS e INNER JOIN role AS r ON e.role_id = r.role_id`,
+		(err, results) => {
+			if (err) throw err;
+			const empList = [];
+			results.forEach(({ id, Employee, Current_Role }) => {
+				empList.push({ id, Employee, Current_Role });
+			});
+			inquirer
+				.prompt([
+					{
+						name: 'choice',
+						type: 'list',
+						choices() {
+							const choiceArr = ['Exit'];
+							results.forEach(({ id, Employee, Current_Role }) => {
+								choiceArr.push(`${id} - ${Employee} as ${Current_Role}`);
+							});
+							return choiceArr;
+						},
+						message: 'Which Employee would you like change roles?',
+					},
+				])
+				.then((answer) => {
+					const empString = answer.choice;
+					conn.query(`SELECT * FROM role`, (err, results) => {
+						if (err) throw err;
+						const roleList = [];
+						results.forEach(({ role_id, title }) => {
+							roleList.push({ role_id, title });
+						});
+						inquirer
+							.prompt([
+								{
+									name: 'roleChoice',
+									type: 'list',
+									choices() {
+										const roleChoiceArr = ['Exit'];
+										results.forEach(({ role_id, title }) => {
+											roleChoiceArr.push(title);
+										});
+										return roleChoiceArr;
+									},
+									message: 'What is the new Role?',
+								},
+							])
+							.then((answer) => {
+								new updateEmployeeRole(answer.roleChoice, roleList, empString);
+							})
+							.then(() => setTimeout(() => init(), 2000));
+					});
+				});
+		}
+	);
+};
 //query pulls all employee information from all tables, returns to firstChoice question
 // function viewAllEmployees() {
 // 	conn.query(
@@ -679,10 +875,10 @@ const budget = () => {
 		});
 };
 
-function endConnection() {
+const endConnection = () => {
 	console.log(chalk.white.bgRed.bold(`closing connection, goodbye`));
 	conn.end();
-}
+};
 
 // connect to the mysql server and sql database
 conn.connect((err) => {
