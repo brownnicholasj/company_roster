@@ -17,6 +17,8 @@ const addDepartmentExecute = require('./queries/addDepartmentExecute');
 const deleteDepartmentExecute = require('./queries/deleteDepartmentExecute');
 const viewAllRoles = require('./queries/viewAllRoles');
 const addRoleExecute = require('./queries/addRoleExecute');
+const deleteRoleExecute = require('./queries/deleteRoleExecute');
+const viewBudget = require('./queries/viewBudget');
 const deptQuery = require('./queries/deptQuery');
 const roleQuery = require('./queries/roleQuery');
 const employeeQuery = require('./queries/employeeQuery');
@@ -65,6 +67,7 @@ const init = () => {
 				'View Roles',
 				'Add Role',
 				'Delete Role',
+				'View Utilized Budget',
 				'EXIT',
 			],
 		})
@@ -111,6 +114,10 @@ const init = () => {
 					break;
 				case 'Delete Role':
 					deleteRole();
+					break;
+				case 'View Utilized Budget':
+					new viewBudget();
+					setTimeout(() => init(), 2000);
 					break;
 				default:
 					endConnection();
@@ -554,33 +561,34 @@ const addRole = () => {
 };
 
 const deleteRole = () => {
-	conn.query(`SELECT * FROM department`, (err, results) => {
+	conn.query(`SELECT * FROM role`, (err, results) => {
 		if (err) throw err;
-		const deptList = [];
-		results.forEach(({ department_id, name }) => {
-			deptList.push({ department_id, name });
+		const roleList = [];
+		results.forEach(({ role_id, title, salary, department_id }) => {
+			roleList.push({ role_id, title, salary, department_id });
 		});
 		inquirer
 			.prompt([
 				{
-					name: 'deptSelect',
+					name: 'roleSelect',
 					type: 'list',
-					message: 'What Department do you want to Delete?',
+					message: 'What Role do you want to Delete?',
 					choices() {
 						const choiceArr = ['Exit'];
-						results.forEach(({ department_id, name }) => {
-							choiceArr.push(`${department_id} - ${name}`);
+						results.forEach(({ role_id, title }) => {
+							choiceArr.push(`${role_id} - ${title}`);
 						});
 						return choiceArr;
 					},
 				},
 			])
 			.then((answer) => {
-				new deleteDepartmentExecute(answer.deptSelect);
+				new deleteRoleExecute(answer.roleSelect);
 			})
 			.then(() => setTimeout(() => init(), 2000));
 	});
 };
+
 //query pulls all employee information from all tables, returns to firstChoice question
 // function viewAllEmployees() {
 // 	conn.query(
@@ -1183,7 +1191,7 @@ const budget = () => {
 const endConnection = () => {
 	console.log(chalk.white.bgRed.bold(`closing connection, goodbye`));
 	conn.connect((err) => {
-		end();
+		conn.end();
 	});
 };
 
