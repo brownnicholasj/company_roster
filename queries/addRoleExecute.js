@@ -18,9 +18,7 @@ class addRoleExecute {
 			(err, res) => {
 				if (err) throw err;
 				return console.log(
-					chalk.black.bgGreen.bold(
-						`${(newRole, newSalary, deptId, deptName)} was added to the table`
-					)
+					chalk.black.bgGreen.bold(`${newRole} was added to the table`)
 				);
 			}
 		);
