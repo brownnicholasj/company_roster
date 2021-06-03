@@ -10,7 +10,7 @@ const conn = mysql.createConnection({
 	database: 'company_roster',
 });
 
-class viewAllEmployees {
+class ViewAllEmployees {
 	constructor() {
 		conn.query(
 			'SELECT employee.id,employee.first_name,employee.last_name,role.title,role.salary,department.name FROM employee AS employee LEFT JOIN role AS role ON employee.role_id=role.role_id LEFT JOIN department AS department ON role.department_id=department.department_id',
@@ -22,4 +22,4 @@ class viewAllEmployees {
 	}
 }
 
-module.exports = viewAllEmployees;
+module.exports = ViewAllEmployees;

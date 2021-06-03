@@ -11,7 +11,7 @@ const conn = mysql.createConnection({
 });
 const chalk = require('chalk');
 
-class deleteRoleExecute {
+class DeleteRoleExecute {
 	constructor(roleSelect) {
 		const roleStr = roleSelect.split('-');
 		const role = roleStr[0].trim();
@@ -27,4 +27,4 @@ class deleteRoleExecute {
 	}
 }
 
-module.exports = deleteRoleExecute;
+module.exports = DeleteRoleExecute;

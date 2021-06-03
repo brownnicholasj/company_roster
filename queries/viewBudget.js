@@ -10,7 +10,7 @@ const conn = mysql.createConnection({
 	database: 'company_roster',
 });
 
-class viewBudget {
+class ViewBudget {
 	constructor() {
 		conn.query(
 			`SELECT department.name, SUM(salary) AS salaries FROM employee INNER JOIN role USING (role_id) INNER JOIN department USING (department_id) GROUP BY department.name`,
@@ -22,4 +22,4 @@ class viewBudget {
 	}
 }
 
-module.exports = viewBudget;
+module.exports = ViewBudget;

@@ -11,7 +11,7 @@ const conn = mysql.createConnection({
 });
 const chalk = require('chalk');
 
-class addRoleExecute {
+class AddRoleExecute {
 	constructor(newRole, newSalary, deptId, deptName) {
 		conn.query(
 			`INSERT INTO role (title,salary,department_id) VALUES ('${newRole}','${newSalary}','${deptId}')`,
@@ -25,4 +25,4 @@ class addRoleExecute {
 	}
 }
 
-module.exports = addRoleExecute;
+module.exports = AddRoleExecute;

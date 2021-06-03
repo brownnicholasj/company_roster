@@ -10,7 +10,7 @@ const conn = mysql.createConnection({
 	database: 'company_roster',
 });
 
-class viewEmployeeManager {
+class ViewEmployeeManager {
 	constructor(selection, mgrArr) {
 		const getIdIndex = mgrArr.findIndex((e) => e.Manager === selection);
 		const getId = mgrArr[getIdIndex].id;
@@ -24,4 +24,4 @@ class viewEmployeeManager {
 	}
 }
 
-module.exports = viewEmployeeManager;
+module.exports = ViewEmployeeManager;

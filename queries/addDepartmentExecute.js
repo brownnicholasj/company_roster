@@ -11,7 +11,7 @@ const conn = mysql.createConnection({
 });
 const chalk = require('chalk');
 
-class addDepartmentExecute {
+class AddDepartmentExecute {
 	constructor(newDept) {
 		conn.query(
 			`INSERT INTO department (name) VALUES ('${newDept}')`,
@@ -25,4 +25,4 @@ class addDepartmentExecute {
 	}
 }
 
-module.exports = addDepartmentExecute;
+module.exports = AddDepartmentExecute;

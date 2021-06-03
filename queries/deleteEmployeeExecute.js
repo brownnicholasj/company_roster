@@ -11,7 +11,7 @@ const conn = mysql.createConnection({
 });
 const chalk = require('chalk');
 
-class deleteEmployeeExecute {
+class DeleteEmployeeExecute {
 	constructor(employeeString) {
 		const strSplit = employeeString.split('-');
 		const empId = strSplit[0].trim();
@@ -23,4 +23,4 @@ class deleteEmployeeExecute {
 	}
 }
 
-module.exports = deleteEmployeeExecute;
+module.exports = DeleteEmployeeExecute;

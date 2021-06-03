@@ -11,7 +11,7 @@ const conn = mysql.createConnection({
 });
 const chalk = require('chalk');
 
-class updateEmployeeManager {
+class UpdateEmployeeManager {
 	constructor(newMgrStr, employeeString) {
 		const strSplit = employeeString.split('-');
 		const empId = strSplit[0].trim();
@@ -28,4 +28,4 @@ class updateEmployeeManager {
 	}
 }
 
-module.exports = updateEmployeeManager;
+module.exports = UpdateEmployeeManager;

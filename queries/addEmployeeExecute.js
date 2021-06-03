@@ -11,7 +11,7 @@ const conn = mysql.createConnection({
 });
 const chalk = require('chalk');
 
-class addEmployeeExecute {
+class AddEmployeeExecute {
 	constructor(firstName, lastName, role, roleArr, mgrName, mgrArr) {
 		const getMgrIdIndex = mgrArr.findIndex((e) => e.Manager === mgrName);
 		const getMgrId = mgrArr[getMgrIdIndex].id;
@@ -30,4 +30,4 @@ class addEmployeeExecute {
 	}
 }
 
-module.exports = addEmployeeExecute;
+module.exports = AddEmployeeExecute;

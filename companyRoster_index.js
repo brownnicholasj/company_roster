@@ -4,20 +4,20 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const logo = require('asciiart-logo');
 const cTable = require('console.table');
-const viewAllEmployees = require('./queries/viewAllEmployees');
-const viewEmployeeDepartment = require('./queries/viewEmployeeDepartment');
-const viewEmployeeManager = require('./queries/viewEmployeeManager');
-const addEmployeeExecute = require('./queries/addEmployeeExecute');
-const updateEmployeeRole = require('./queries/updateEmployeeRole');
-const updateEmployeeManager = require('./queries/updateEmployeeManager');
-const deleteEmployeeExecute = require('./queries/deleteEmployeeExecute');
-const viewAllDepartments = require('./queries/viewAllDepartments');
-const addDepartmentExecute = require('./queries/addDepartmentExecute');
-const deleteDepartmentExecute = require('./queries/deleteDepartmentExecute');
-const viewAllRoles = require('./queries/viewAllRoles');
-const addRoleExecute = require('./queries/addRoleExecute');
-const deleteRoleExecute = require('./queries/deleteRoleExecute');
-const viewBudget = require('./queries/viewBudget');
+const ViewAllEmployees = require('./queries/ViewAllEmployees');
+const ViewEmployeeDepartment = require('./queries/ViewEmployeeDepartment');
+const ViewEmployeeManager = require('./queries/ViewEmployeeManager');
+const AddEmployeeExecute = require('./queries/AddEmployeeExecute');
+const UpdateEmployeeRole = require('./queries/UpdateEmployeeRole');
+const UpdateEmployeeManager = require('./queries/UpdateEmployeeManager');
+const DeleteEmployeeExecute = require('./queries/DeleteEmployeeExecute');
+const ViewAllDepartments = require('./queries/ViewAllDepartments');
+const AddDepartmentExecute = require('./queries/AddDepartmentExecute');
+const DeleteDepartmentExecute = require('./queries/DeleteDepartmentExecute');
+const ViewAllRoles = require('./queries/ViewAllRoles');
+const AddRoleExecute = require('./queries/AddRoleExecute');
+const DeleteRoleExecute = require('./queries/DeleteRoleExecute');
+const ViewBudget = require('./queries/ViewBudget');
 
 // connection information for the sql database
 const conn = mysql.createConnection({
@@ -58,7 +58,7 @@ const init = () => {
 		.then((answer) => {
 			switch (answer.firstChoice) {
 				case 'View All Employees':
-					new viewAllEmployees();
+					new ViewAllEmployees();
 					setTimeout(() => init(), 2000);
 					break;
 				case 'View Employees by Department':
@@ -80,7 +80,7 @@ const init = () => {
 					deleteEmployee();
 					break;
 				case 'View Departments':
-					new viewAllDepartments();
+					new ViewAllDepartments();
 					setTimeout(() => init(), 2000);
 					break;
 				case 'Add Department':
@@ -90,7 +90,7 @@ const init = () => {
 					deleteDepartment();
 					break;
 				case 'View Roles':
-					new viewAllRoles();
+					new ViewAllRoles();
 					setTimeout(() => init(), 2000);
 					break;
 				case 'Add Role':
@@ -100,7 +100,7 @@ const init = () => {
 					deleteRole();
 					break;
 				case 'View Utilized Budget':
-					new viewBudget();
+					new ViewBudget();
 					setTimeout(() => init(), 2000);
 					break;
 				default:
@@ -130,7 +130,7 @@ const deptSelect = () => {
 				},
 			])
 			.then((answer) => {
-				new viewEmployeeDepartment(answer.choice);
+				new ViewEmployeeDepartment(answer.choice);
 			})
 			.then(() => setTimeout(() => init(), 2000));
 	});
@@ -161,7 +161,7 @@ const managerSelect = () => {
 					},
 				])
 				.then((answer) => {
-					new viewEmployeeManager(answer.mgrChoice, managerIdList);
+					new ViewEmployeeManager(answer.mgrChoice, managerIdList);
 				})
 				.then(() => setTimeout(() => init(), 2000));
 		}
@@ -232,7 +232,7 @@ const addEmployee = () => {
 										},
 									])
 									.then((answer) => {
-										new addEmployeeExecute(
+										new AddEmployeeExecute(
 											firstName,
 											lastName,
 											role,
@@ -297,7 +297,7 @@ const updateRole = () => {
 								},
 							])
 							.then((answer) => {
-								new updateEmployeeRole(answer.roleChoice, roleList, empString);
+								new UpdateEmployeeRole(answer.roleChoice, roleList, empString);
 							})
 							.then(() => setTimeout(() => init(), 2000));
 					});
@@ -358,7 +358,7 @@ const updateManager = () => {
 									},
 								])
 								.then((answer) => {
-									new updateEmployeeManager(answer.mgrChoice, empString);
+									new UpdateEmployeeManager(answer.mgrChoice, empString);
 								})
 								.then(() => setTimeout(() => init(), 2000));
 						}
@@ -393,7 +393,7 @@ const deleteEmployee = () => {
 					},
 				])
 				.then((answer) => {
-					new deleteEmployeeExecute(answer.choice);
+					new DeleteEmployeeExecute(answer.choice);
 				})
 				.then(() => setTimeout(() => init(), 2000));
 		}
@@ -428,7 +428,7 @@ const addDepartment = () => {
 			])
 			.then((answer) => {
 				let deptInput = formatInput(answer.deptInput);
-				new addDepartmentExecute(deptInput);
+				new AddDepartmentExecute(deptInput);
 			})
 			.then(() => setTimeout(() => init(), 2000));
 	});
@@ -457,7 +457,7 @@ const deleteDepartment = () => {
 				},
 			])
 			.then((answer) => {
-				new deleteDepartmentExecute(answer.deptSelect);
+				new DeleteDepartmentExecute(answer.deptSelect);
 			})
 			.then(() => setTimeout(() => init(), 2000));
 	});
@@ -533,7 +533,7 @@ const addRole = () => {
 						])
 						.then((answer) => {
 							let roleInput = formatInput(answer.roleInput);
-							new addRoleExecute(
+							new AddRoleExecute(
 								roleInput,
 								answer.roleSalary,
 								deptId,
@@ -571,7 +571,7 @@ const deleteRole = () => {
 					},
 				])
 				.then((answer) => {
-					new deleteRoleExecute(answer.roleSelect);
+					new DeleteRoleExecute(answer.roleSelect);
 				})
 				.then(() => setTimeout(() => init(), 2000));
 		}

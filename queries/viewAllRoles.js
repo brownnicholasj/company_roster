@@ -10,7 +10,7 @@ const conn = mysql.createConnection({
 	database: 'company_roster',
 });
 
-class viewAllRoles {
+class ViewAllRoles {
 	constructor() {
 		conn.query('SELECT * FROM role', (err, res) => {
 			if (err) throw err;
@@ -19,4 +19,4 @@ class viewAllRoles {
 	}
 }
 
-module.exports = viewAllRoles;
+module.exports = ViewAllRoles;

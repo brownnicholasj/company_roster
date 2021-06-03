@@ -11,7 +11,7 @@ const conn = mysql.createConnection({
 });
 const chalk = require('chalk');
 
-class deleteDepartmentExecute {
+class DeleteDepartmentExecute {
 	constructor(deptSelect) {
 		const deptStr = deptSelect.split('-');
 		const dept = deptStr[0].trim();
@@ -32,4 +32,4 @@ class deleteDepartmentExecute {
 	}
 }
 
-module.exports = deleteDepartmentExecute;
+module.exports = DeleteDepartmentExecute;
