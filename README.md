@@ -4,16 +4,13 @@
 
 ## Description
 
-- This note taking application will allow a user to create and store notes with
-  a title and body. The application stores the information in a database so
-  information an be stored over a period of time, so the user can keep notes for
-  a longer period of time.
-- The technology used for this application are: node, javascript, express (npm),
-  file structure (node), path (node) bootstrap styling, fontawesome (html
-  images)
-- The biggest challenge I had understanding how to handle static files within
-  express. Once I found the required use, everything else seemed to work pretty
-  easily.
+- This Company Rost CLI application will allow the user to manage their
+  Employees, Roles and Departments.
+- The technology used for this application are: node, javascript, mysql (npm),
+  inquirer (npm), chalk (npm), asciiart-logo (npm), console.table (npm)
+- The biggest challenge within this project was organizing the code and having a
+  reliable pattern to store the code as, once I landed on one that worked for
+  me, the solution came together pretty quickly.
 
 ## Table of Contents
 
@@ -34,38 +31,41 @@ npm i
 
 The following dependencies will be installed:
 
-- express
+- mysql
+- inquirer
+- chalk
+- asciiart-logo
+- console.table
 
 ## Usage
 
-A user will go to the
-[website](https://brownnicholasj-note-taker.herokuapp.com/) and click on the
-'Get Started' button. ![usage001](./public/assets/images/usage001.jpg)
+A user will start the app in their console log and be presented with the splash
+logo and their options ![usage001](./assets/images/usage001.jpg)
 
 The user will then be presented with stored notes on the left side and the
 ability to add new notes with a Title and Body section.
-![usage002](./public/assets/images/usage002.jpg)
+![usage002](./assets/images/usage002.jpg)
 
 When the user enters a note title and note text, then a save button will appear
-in the top right. ![usage003](./public/assets/images/usage003.jpg)
+in the top right. ![usage003](./assets/images/usage003.jpg)
 
 When the user clicks the save button, the note will be stored in the database
 and visible on the stored list to the left side of the screen.
-![usage004](./public/assets/images/usage004.jpg)
+![usage004](./assets/images/usage004.jpg)
 
 When a user wants to view the details of a stored note, they can click on the
 note title on the left side. A read only view of the note title and text will be
 visible in the main section of the page
-![usage005](./public/assets/images/usage005.jpg)
+![usage005](./assets/images/usage005.jpg)
 
 When a user wants to add a new note when they have a previous note pulled up (in
 read only view), the user can click the '+' icon in the top right and the main
 section will clear and be eligible for a user to create a title and text
-![usage006](./public/assets/images/usage006.jpg)
+![usage006](./assets/images/usage006.jpg)
 
 WHen a user wants to delete a note, they can press the red trashcan icon on the
 list to the left and the note will be deleted from the database and from the
-list ![usage007](./public/assets/images/usage007.jpg)
+list ![usage007](./assets/images/usage007.jpg)
 
 ## License
 
@@ -86,23 +86,23 @@ runtime)<br> https://youtu.be/wBTsdZ2h9fg
 ### Behind the Code
 
 - The GET request for /notes will return the user the notes.html and all other
-  requests to the index.html <br> ![btc001](./public/assets/images/btc001.jpg)
+  requests to the index.html <br> ![btc001](./assets/images/btc001.jpg)
 
 - The GET and POST requests for api/notes will return the database and allow
-  notes to be saved to the db: <br> ![btc002](./public/assets/images/btc002.jpg)
+  notes to be saved to the db: <br> ![btc002](./assets/images/btc002.jpg)
 
-  ![btc003](./public/assets/images/btc003.jpg)
+  ![btc003](./assets/images/btc003.jpg)
 
 - The saver function within the code is called when a POST or DELETE request
   comes in and posts (or deletes) the data to the db.json file
-  ![btc004](./public/assets/images/btc004.jpg)
+  ![btc004](./assets/images/btc004.jpg)
 
 - The unique identifier is determined by utilizing the date function within
   Javascript. This will establish a UNIX formatted date as the unique ID, since
   it inherently counts up with milliseconds, it will serve well as a unique ID
-  creator ![btc005](./public/assets/images/btc005.jpg)
+  creator ![btc005](./assets/images/btc005.jpg)
 
-  ![btc006](./public/assets/images/btc006.jpg)
+  ![btc006](./assets/images/btc006.jpg)
 
 ## Questions
 
