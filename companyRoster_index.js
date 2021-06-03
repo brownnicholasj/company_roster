@@ -13,13 +13,17 @@ const updateEmployeeRole = require('./queries/updateEmployeeRole');
 const updateEmployeeManager = require('./queries/updateEmployeeManager');
 const deleteEmployeeExecute = require('./queries/deleteEmployeeExecute');
 const viewAllDepartments = require('./queries/viewAllDepartments');
+const addDepartmentExecute = require('./queries/addDepartmentExecute');
+const deleteDepartmentExecute = require('./queries/deleteDepartmentExecute');
+const viewAllRoles = require('./queries/viewAllRoles');
+const addRoleExecute = require('./queries/addRoleExecute');
 const deptQuery = require('./queries/deptQuery');
 const roleQuery = require('./queries/roleQuery');
 const employeeQuery = require('./queries/employeeQuery');
 const managerQuery = require('./queries/managerQuery');
-const addDepartment = require('./queries/addDepartment');
-const addRole = require('./queries/addRole');
-const addTables = require('./queries/addTables');
+// const addDepartment = require('./queries/addDepartment');
+// const addRole = require('./queries/addRole');
+// const addTables = require('./queries/addTables');
 
 // connection information for the sql database
 const conn = mysql.createConnection({
@@ -56,6 +60,11 @@ const init = () => {
 				'Update Employee Manager',
 				'Delete Employee',
 				'View Departments',
+				'Add Department',
+				'Delete Department',
+				'View Roles',
+				'Add Role',
+				'Delete Role',
 				'EXIT',
 			],
 		})
@@ -87,6 +96,22 @@ const init = () => {
 					new viewAllDepartments();
 					setTimeout(() => init(), 2000);
 					break;
+				case 'Add Department':
+					addDepartment();
+					break;
+				case 'Delete Department':
+					deleteDepartment();
+					break;
+				case 'View Roles':
+					new viewAllRoles();
+					setTimeout(() => init(), 2000);
+					break;
+				case 'Add Role':
+					addRole();
+					break;
+				case 'Delete Role':
+					deleteRole();
+					break;
 				default:
 					endConnection();
 					return;
@@ -102,7 +127,7 @@ const deptSelect = () => {
 			.prompt([
 				{
 					name: 'choice',
-					type: 'rawlist',
+					type: 'list',
 					choices() {
 						const choiceArray = [];
 						results.forEach(({ name }) => {
@@ -382,6 +407,179 @@ const deleteEmployee = () => {
 				.then(() => setTimeout(() => init(), 2000));
 		}
 	);
+};
+
+const addDepartment = () => {
+	conn.query(`SELECT * FROM department`, (err, results) => {
+		if (err) throw err;
+		const deptList = [];
+		results.forEach(({ department_id, name }) => {
+			deptList.push({ department_id, name });
+		});
+		inquirer
+			.prompt([
+				{
+					name: 'deptInput',
+					type: 'input',
+					message: 'What is the name of the new Department?',
+					validate(value) {
+						for (let i = 0; i < deptList.length; i++) {
+							if (deptList[i].name.toLowerCase() === value.toLowerCase()) {
+								console.log(
+									chalk.white.bgRed.bold(`${value} is already a Department`)
+								);
+								return false;
+							}
+						}
+						return true;
+					},
+				},
+			])
+			.then((answer) => {
+				new addDepartmentExecute(answer.deptInput);
+			})
+			.then(() => setTimeout(() => init(), 2000));
+	});
+};
+
+const deleteDepartment = () => {
+	conn.query(`SELECT * FROM department`, (err, results) => {
+		if (err) throw err;
+		const deptList = [];
+		results.forEach(({ department_id, name }) => {
+			deptList.push({ department_id, name });
+		});
+		inquirer
+			.prompt([
+				{
+					name: 'deptSelect',
+					type: 'list',
+					message: 'What Department do you want to Delete?',
+					choices() {
+						const choiceArr = ['Exit'];
+						results.forEach(({ department_id, name }) => {
+							choiceArr.push(`${department_id} - ${name}`);
+						});
+						return choiceArr;
+					},
+				},
+			])
+			.then((answer) => {
+				new deleteDepartmentExecute(answer.deptSelect);
+			})
+			.then(() => setTimeout(() => init(), 2000));
+	});
+};
+
+const addRole = () => {
+	conn.query(`SELECT * FROM department`, (err, results) => {
+		if (err) throw err;
+		const deptList = [];
+		results.forEach(({ department_id, name }) => {
+			deptList.push({ department_id, name });
+		});
+		inquirer
+			.prompt([
+				{
+					name: 'deptSelect',
+					type: 'list',
+					message: 'What Department will the new role be in?',
+					choices() {
+						const choiceArr = ['Exit'];
+						results.forEach(({ department_id, name }) => {
+							choiceArr.push(`${department_id} - ${name}`);
+						});
+						return choiceArr;
+					},
+				},
+			])
+			.then((answer) => {
+				const strDeconstruct = answer.deptSelect.split('-');
+				const deptId = strDeconstruct[0].trim();
+				const deptName = strDeconstruct[1].trim();
+
+				conn.query(`SELECT * FROM role`, (err, results) => {
+					if (err) throw err;
+					const roleList = [];
+					results.forEach(({ role_id, title, salary, department_id }) => {
+						roleList.push({ role_id, title, salary, department_id });
+					});
+					inquirer
+						.prompt([
+							{
+								name: 'roleInput',
+								type: 'input',
+								message: 'What is the title of the new Role?',
+								validate(value) {
+									for (let i = 0; i < roleList.length; i++) {
+										if (
+											roleList[i].title.toLowerCase() === value.toLowerCase() &&
+											roleList[i].department_id === deptId
+										) {
+											console.log(
+												chalk.white.bgRed.bold(
+													`${value} is already a Role in ${deptName}`
+												)
+											);
+											return false;
+										}
+									}
+									return true;
+								},
+							},
+							{
+								name: 'roleSalary',
+								type: 'input',
+								message: 'What is the Salary of the new Role?',
+								validate(value) {
+									if (isNaN(value) === false) {
+										return true;
+									}
+									return false;
+								},
+							},
+						])
+						.then((answer) => {
+							new addRoleExecute(
+								answer.roleInput,
+								answer.roleSalary,
+								deptId,
+								deptName
+							);
+						})
+						.then(() => setTimeout(() => init(), 2000));
+				});
+			});
+	});
+};
+
+const deleteRole = () => {
+	conn.query(`SELECT * FROM department`, (err, results) => {
+		if (err) throw err;
+		const deptList = [];
+		results.forEach(({ department_id, name }) => {
+			deptList.push({ department_id, name });
+		});
+		inquirer
+			.prompt([
+				{
+					name: 'deptSelect',
+					type: 'list',
+					message: 'What Department do you want to Delete?',
+					choices() {
+						const choiceArr = ['Exit'];
+						results.forEach(({ department_id, name }) => {
+							choiceArr.push(`${department_id} - ${name}`);
+						});
+						return choiceArr;
+					},
+				},
+			])
+			.then((answer) => {
+				new deleteDepartmentExecute(answer.deptSelect);
+			})
+			.then(() => setTimeout(() => init(), 2000));
+	});
 };
 //query pulls all employee information from all tables, returns to firstChoice question
 // function viewAllEmployees() {
@@ -984,7 +1182,9 @@ const budget = () => {
 
 const endConnection = () => {
 	console.log(chalk.white.bgRed.bold(`closing connection, goodbye`));
-	conn.end();
+	conn.connect((err) => {
+		end();
+	});
 };
 
 // connect to the mysql server and sql database
