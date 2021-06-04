@@ -16,10 +16,15 @@ class UpdateEmployeeManager {
 		const strSplit = employeeString.split('-');
 		const empId = strSplit[0].trim();
 		const mgrSplit = newMgrStr.split('-');
-		const newMgr = mgrSplit[0].trim();
+		let newMgr = mgrSplit[0].trim();
+		if (newMgr === 'None') {
+			newMgr = 'NULL';
+		} else {
+			newMgr = `\'${mgrSplit[0].trim()}\'`;
+		}
 
 		conn.query(
-			`UPDATE employee SET manager_id='${newMgr}' WHERE id='${empId}'`,
+			`UPDATE employee SET manager_id=${newMgr} WHERE id='${empId}'`,
 			(err, res) => {
 				if (err) throw err;
 				console.log(chalk.black.bgGreen.bold(`Manager is updated`));

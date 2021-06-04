@@ -59,7 +59,7 @@ const init = () => {
 			switch (answer.selection) {
 				case 'View All Employees':
 					new ViewAllEmployees();
-					setTimeout(() => init(), 2000);
+					setTimeout(() => init(), 1000);
 					break;
 				case 'View Employees by Department':
 					deptSelect();
@@ -81,7 +81,7 @@ const init = () => {
 					break;
 				case 'View Departments':
 					new ViewAllDepartments();
-					setTimeout(() => init(), 2000);
+					setTimeout(() => init(), 1000);
 					break;
 				case 'Add Department':
 					addDepartment();
@@ -91,7 +91,7 @@ const init = () => {
 					break;
 				case 'View Roles':
 					new ViewAllRoles();
-					setTimeout(() => init(), 2000);
+					setTimeout(() => init(), 1000);
 					break;
 				case 'Add Role':
 					addRole();
@@ -101,7 +101,7 @@ const init = () => {
 					break;
 				case 'View Utilized Budget':
 					new ViewBudget();
-					setTimeout(() => init(), 2000);
+					setTimeout(() => init(), 1000);
 					break;
 				default:
 					endConnection();
@@ -417,9 +417,14 @@ const addDepartment = () => {
 						for (let i = 0; i < deptList.length; i++) {
 							if (deptList[i].name.toLowerCase() === value.toLowerCase()) {
 								console.log(
-									chalk.white.bgRed.bold(`${value} is already a Department`)
+									chalk.white.bgRed.bold(
+										`${value} is already a Department. Give a new Department or type 'Exit' to return to main menu.`
+									)
 								);
 								return false;
+							}
+							if (value.toLowerCase() === 'exit') {
+								return true;
 							}
 						}
 						return true;
@@ -428,7 +433,9 @@ const addDepartment = () => {
 			])
 			.then((answer) => {
 				let deptInput = formatInput(answer.deptInput);
-				new AddDepartmentExecute(deptInput);
+				if (deptInput !== 'Exit') {
+					new AddDepartmentExecute(deptInput);
+				}
 			})
 			.then(() => setTimeout(() => init(), 2000));
 	});
@@ -510,7 +517,7 @@ const addRole = () => {
 										) {
 											console.log(
 												chalk.white.bgRed.bold(
-													`${value} is already a Role in ${deptName}`
+													`${value} is already a Role in ${deptName}. Give a new role for ${deptName} or type 'Exit' to return to main menu.`
 												)
 											);
 											return false;
