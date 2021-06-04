@@ -539,9 +539,7 @@ const addRole = () => {
 									}
 									return false;
 								},
-								when: (answer) => {
-									answer.roleInput.toLowerCase() !== 'exit';
-								},
+								when: (answers) => answers.roleInput.toLowerCase() !== 'exit',
 							},
 						])
 						.then((answer) => {
