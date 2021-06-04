@@ -25,16 +25,22 @@ INSERT INTO employee (first_name,last_name,role_id,manager_id)
 VALUES ("Delilah","Douglas", 4, 1);
 
 INSERT INTO employee (first_name,last_name,role_id,manager_id)
-VALUES ("Ernie","Ewing", 5, 2);
+VALUES ("Ernie","Ewing", 5, 3);
 
 INSERT INTO employee (first_name,last_name,role_id,manager_id)
-VALUES ("Frank","Fletcher", 5, 2);
+VALUES ("Frank","Fletcher", 5, 3);
 
 INSERT INTO employee (first_name,last_name,role_id,manager_id)
-VALUES ("Gary","Greenwood", 6, 3);
+VALUES ("Gary","Greenwood", 6, 4);
 
 INSERT INTO employee (first_name,last_name,role_id,manager_id)
-VALUES ("Heather","Hewitt", 6, 3);
+VALUES ("Heather","Hewitt", 6, 4);
+
+INSERT INTO employee (first_name,last_name,role_id,manager_id)
+VALUES ("Isaac","Irwin", 7, 2);
+
+INSERT INTO employee (first_name,last_name,role_id,manager_id)
+VALUES ("Jessica","James", 7, 2);
 
 
 SELECT *
