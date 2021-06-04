@@ -506,7 +506,7 @@ const addRole = () => {
 									for (let i = 0; i < roleList.length; i++) {
 										if (
 											roleList[i].title.toLowerCase() === value.toLowerCase() &&
-											roleList[i].department_id === deptId
+											roleList[i].department_id.toString() === deptId
 										) {
 											console.log(
 												chalk.white.bgRed.bold(
@@ -514,6 +514,9 @@ const addRole = () => {
 												)
 											);
 											return false;
+										}
+										if (value.toLowerCase() === 'exit') {
+											return true;
 										}
 									}
 									return true;
@@ -529,16 +532,21 @@ const addRole = () => {
 									}
 									return false;
 								},
+								when: (answer) => {
+									answer.roleInput.toLowerCase() !== 'exit';
+								},
 							},
 						])
 						.then((answer) => {
 							let roleInput = formatInput(answer.roleInput);
-							new AddRoleExecute(
-								roleInput,
-								answer.roleSalary,
-								deptId,
-								deptName
-							);
+							if (roleInput !== 'Exit') {
+								new AddRoleExecute(
+									roleInput,
+									answer.roleSalary,
+									deptId,
+									deptName
+								);
+							}
 						})
 						.then(() => setTimeout(() => init(), 2000));
 				});
