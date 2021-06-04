@@ -34,7 +34,7 @@ const conn = mysql.createConnection({
 const init = () => {
 	inquirer
 		.prompt({
-			name: 'firstChoice',
+			name: 'selection',
 			type: 'list',
 			message: 'What action would you like to take?',
 			choices: [
@@ -56,7 +56,7 @@ const init = () => {
 			],
 		})
 		.then((answer) => {
-			switch (answer.firstChoice) {
+			switch (answer.selection) {
 				case 'View All Employees':
 					new ViewAllEmployees();
 					setTimeout(() => init(), 2000);
@@ -586,7 +586,10 @@ function formatInput(string) {
 
 const endConnection = () => {
 	console.log(chalk.white.bgRed.bold(`closing connection, goodbye`));
-	conn.end();
+	conn.end((err) => {
+		if (err) console.error(err);
+	});
+	process.exit(0);
 };
 
 // connect to the mysql server and sql database
