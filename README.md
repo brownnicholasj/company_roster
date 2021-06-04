@@ -80,8 +80,8 @@ A thanks to the following contributors to this project:
 
 ## Demo
 
-Click the following link to watch video demo of the application (43sec
-runtime)<br> https://youtu.be/wBTsdZ2h9fg
+Click the following link to watch video demo of the application (3min41sec
+runtime)<br> https://youtu.be/AW5_VCIXF4w
 
 ### Behind the Code
 
